@@ -65,7 +65,7 @@ Or add a new class:
 The configuration is hard code in class ZCL_ADATA_VALIDATION method CONSTRUCTOR, but you can redefine the CONSTRUCTOR to retrieve configuration from database tables or other source. It allows you to change the function without modify existed program.
 
 ## Exception
-The exception class ZCX_ADV_EXCEPTION is copied from ZCX_ABAPGIT_EXCEPTION for it is easy to use.
+The exception class ZCX_ADV_EXCEPTION is copied from ZCX_ABAPGIT_EXCEPTION for it is easy to use:)
 
 ## TODO
 Now only date, time and email type are supported. Need to add more check classes.
