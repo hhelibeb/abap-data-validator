@@ -131,6 +131,9 @@ CLASS zcl_adata_validation IMPLEMENTATION.
     check_config = VALUE #(
       ( type = c_type_date  class = 'ZCL_ADV_DATE_CHECK'  message = 'Invalid value for field &. Date format should be YYYYMMDD. ')
       ( type = c_type_email class = 'ZCL_ADV_EMAIL_CHECK' )
+      ( type = c_type_time  class = 'ZCL_ADV_TIME_CHECK' )
+      ( type = c_type_int4  class = 'ZCL_ADV_INT4_CHECK' )
+      ( type = c_type_regex class = 'ZCL_ADV_REGEX_CHECK' )
     ).
 
     required_message         = |& is required. |.
