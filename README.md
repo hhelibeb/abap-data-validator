@@ -44,7 +44,7 @@ There are two ways to extend the validation:
 * Pass regular expression by RULES-REGEX.
 * Create a new class which implements the interface ZIF_ADV_CHECK, and add the type name & class name in ZCL_ADATA_VALIDATION->CONSTRUCTOR.
 
-Regex example:
+Regex example. If you want to check whether the input email is a gmail address, you can assign 'gmail\.com$' to RULE-REGEX:
 
     DATA: rules TYPE zcl_adata_validation=>ty_rules_t.
 
