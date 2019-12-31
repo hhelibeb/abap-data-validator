@@ -1,12 +1,20 @@
 # abap-data-validation
 A data validation tool.
 
-ABAP Data validation is a tool to simplify data validation for SAP ABAP development.
+ABAP Data Validation is a tool to simplify data validation for SAP ABAP development.
 
 Goals:
 * General input/output.
 * Customizable validation rules.
 * Extendable validation program.
+
+## Type list
+ABAP Data Validation supports validations for types below (updating),
+- [x] Date.
+- [x] Time.
+- [x] Email.
+- [x] INT4.
+- [x] REGEX string.
 
 ## Input / Output
 Class ZCL_ADATA_VALIDATION provide a general validation method: VALIDATE. 
@@ -69,3 +77,5 @@ The exception class ZCX_ADV_EXCEPTION is copied from ZCX_ABAPGIT_EXCEPTION for i
 
 ## TODO
 Now only date, time and email type are supported. Need to add more check classes.
+- [ ] More types.
+- [ ] Auto Type detecting.
