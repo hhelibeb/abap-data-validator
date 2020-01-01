@@ -37,6 +37,7 @@ CLASS zcl_adata_validation DEFINITION
     CONSTANTS: c_type_email TYPE ty_spec_type VALUE 'EMAIL'.
     CONSTANTS: c_type_int4 TYPE ty_spec_type VALUE 'INT4'.
     CONSTANTS: c_type_regex TYPE ty_spec_type VALUE 'REGEX'.
+    CONSTANTS: c_type_timestamp TYPE ty_spec_type VALUE 'TIMESTAMP'.
 
 
     METHODS: constructor.
@@ -136,6 +137,7 @@ CLASS zcl_adata_validation IMPLEMENTATION.
       ( type = c_type_time  class = 'ZCL_ADV_TIME_CHECK' )
       ( type = c_type_int4  class = 'ZCL_ADV_INT4_CHECK' )
       ( type = c_type_regex class = 'ZCL_ADV_REGEX_CHECK' )
+      ( type = c_type_timestamp class = 'ZCL_ADV_TIMESTAMP_CHECK' )
     ).
 
     required_message         = |& is required. |.
