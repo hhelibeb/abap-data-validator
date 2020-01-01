@@ -12,6 +12,7 @@ Goals:
 ABAP Data Validation supports validations for types below (updating),
 - [x] Date.
 - [x] Time.
+- [x] Timestamp.
 - [x] Email.
 - [x] INT4.
 - [x] REGEX string.
