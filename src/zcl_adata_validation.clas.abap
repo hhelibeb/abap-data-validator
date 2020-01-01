@@ -35,6 +35,8 @@ CLASS zcl_adata_validation DEFINITION
     CONSTANTS: c_type_date TYPE ty_spec_type VALUE 'DATE'.
     CONSTANTS: c_type_time TYPE ty_spec_type VALUE 'TIME'.
     CONSTANTS: c_type_email TYPE ty_spec_type VALUE 'EMAIL'.
+    CONSTANTS: c_type_int4 TYPE ty_spec_type VALUE 'INT4'.
+    CONSTANTS: c_type_regex TYPE ty_spec_type VALUE 'REGEX'.
 
 
     METHODS: constructor.
