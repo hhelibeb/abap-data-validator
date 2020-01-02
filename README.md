@@ -18,6 +18,8 @@ ABAP Data Validation supports validations for types below (updating),
 - [x] INT4.
 - [x] REGEX string.
 - [x] URL.
+- [x] JSON.
+- [x] HEX.
 
 ## Input / Output
 Class ZCL_ADATA_VALIDATOR provide a general validation method: VALIDATE. 
