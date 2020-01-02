@@ -21,6 +21,7 @@ CLASS ltc_validation_check DEFINITION FINAL FOR TESTING DURATION SHORT RISK LEVE
     METHODS: initial_input FOR TESTING.
     METHODS: error_input FOR TESTING.
     METHODS: no_error_input FOR TESTING.
+    METHODS: class_check FOR TESTING.
 
 ENDCLASS.
 
@@ -272,6 +273,43 @@ CLASS ltc_validation_check IMPLEMENTATION.
         msg = |Result of row '3' fname 'FIELD6' should not be error. |
     ).
     ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD class_check.
+    DATA: rules TYPE zcl_adata_validator=>ty_rules_t.
+
+    DATA: cases TYPE ty_case_t.
+
+    rules = VALUE #(
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_date      )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_email     )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_time      )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_int4      )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_regex     )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_timestamp )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_url       )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_hex       )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_json      )
+    ).
+
+    cases = VALUE #(
+        ( field1 = 'A$$')
+    ).
+
+    DATA(adata_validation) = NEW zcl_adata_validator( ).
+    TRY.
+        DATA(result) = adata_validation->validate(
+             rules   = rules
+             data    = cases
+         ).
+      CATCH zcx_adv_exception INTO DATA(ex).
+        DATA(msg) = ex->get_text( ).
+        cl_abap_unit_assert=>fail(
+           msg = msg
+        ).
+    ENDTRY.
 
   ENDMETHOD.
 

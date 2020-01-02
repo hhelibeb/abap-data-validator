@@ -16,7 +16,7 @@ CLASS zcl_adata_validator DEFINITION
              regex_msg        TYPE string, "custom regular expression error message
            END OF ty_rule.
 
-    TYPES: ty_rules_t TYPE HASHED TABLE OF ty_rule WITH UNIQUE KEY fname.
+    TYPES: ty_rules_t TYPE HASHED TABLE OF ty_rule WITH UNIQUE KEY fname user_type.
 
     TYPES: BEGIN OF ty_msg,
              text TYPE string,
@@ -39,6 +39,8 @@ CLASS zcl_adata_validator DEFINITION
     CONSTANTS: c_type_regex TYPE ty_spec_type VALUE 'REGEX'.
     CONSTANTS: c_type_timestamp TYPE ty_spec_type VALUE 'TIMESTAMP'.
     CONSTANTS: c_type_url TYPE ty_spec_type VALUE 'URL'.
+    CONSTANTS: c_type_hex TYPE ty_spec_type VALUE 'HEX'.
+    CONSTANTS: c_type_json TYPE ty_spec_type VALUE 'JSON'.
 
 
     METHODS: constructor.
@@ -82,9 +84,10 @@ CLASS zcl_adata_validator DEFINITION
                            RETURNING VALUE(flat) TYPE abap_bool
                            RAISING   zcx_adv_exception.
 
-    METHODS: set_result IMPORTING row      TYPE int4
-                                  fname    TYPE name_komp
-                                  msg_text TYPE ty_message_text.
+    METHODS: set_result IMPORTING row       TYPE int4
+                                  fname     TYPE name_komp
+                                  type_name TYPE ty_spec_type OPTIONAL
+                                  msg_text  TYPE ty_message_text.
 ENDCLASS.
 
 
@@ -133,19 +136,21 @@ CLASS zcl_adata_validator IMPLEMENTATION.
   METHOD constructor.
 
     check_config = VALUE #(
-      ( type = c_type_date  class = 'ZCL_ADV_DATE_CHECK'  message = 'Invalid value for field &. Date format should be YYYYMMDD. ')
-      ( type = c_type_email class = 'ZCL_ADV_EMAIL_CHECK' )
-      ( type = c_type_time  class = 'ZCL_ADV_TIME_CHECK' )
-      ( type = c_type_int4  class = 'ZCL_ADV_INT4_CHECK' )
-      ( type = c_type_regex class = 'ZCL_ADV_REGEX_CHECK' )
+      ( type = c_type_date      class = 'ZCL_ADV_DATE_CHECK'  message = 'Invalid value for field "&1". Date format should be YYYYMMDD. ')
+      ( type = c_type_email     class = 'ZCL_ADV_EMAIL_CHECK' )
+      ( type = c_type_time      class = 'ZCL_ADV_TIME_CHECK' )
+      ( type = c_type_int4      class = 'ZCL_ADV_INT4_CHECK' )
+      ( type = c_type_regex     class = 'ZCL_ADV_REGEX_CHECK' )
       ( type = c_type_timestamp class = 'ZCL_ADV_TIMESTAMP_CHECK' )
       ( type = c_type_url       class = 'ZCL_ADV_URL_CHECK' )
+      ( type = c_type_hex       class = 'ZCL_ADV_HEX_CHECK' )
+      ( type = c_type_json      class = 'ZCL_ADV_JSON_CHECK' )
     ).
 
-    required_message         = |& is required. |.
-    initial_or_empty_message = |& should be empty. |.
-    default_message          = |Invalid value for field &. |.
-    class_error_message      = |Class & is invalid, check your configuration. |.
+    required_message         = |&1 is required. |.
+    initial_or_empty_message = |&1 should be empty. |.
+    default_message          = |Invalid value for field "&1", type "&2" |.
+    class_error_message      = |Class &1 is invalid, check your configuration and code. |.
 
   ENDMETHOD.
 
@@ -222,7 +227,10 @@ CLASS zcl_adata_validator IMPLEMENTATION.
     DATA(sub_msg_text) = COND #( WHEN msg_text IS NOT INITIAL THEN msg_text
                                  ELSE                              default_message ).
 
-    REPLACE ALL OCCURRENCES OF '&' IN sub_msg_text WITH fname.
+    REPLACE ALL OCCURRENCES OF '&1' IN sub_msg_text WITH fname.
+    IF type_name IS NOT INITIAL.
+      REPLACE ALL OCCURRENCES OF '&2' IN sub_msg_text WITH type_name.
+    ENDIF.
 
     READ TABLE results_temp WITH KEY row = row fname = fname ASSIGNING FIELD-SYMBOL(<result>).
     IF sy-subrc = 0.
@@ -282,7 +290,7 @@ CLASS zcl_adata_validator IMPLEMENTATION.
                   TRY.
                       CALL METHOD (<config>-class)=>(method_name) PARAMETER-TABLE ptab.
                       IF valid = abap_false.
-                        set_result( row = data_row fname = <rule>-fname msg_text = <config>-message ).
+                        set_result( row = data_row fname = <rule>-fname msg_text = <config>-message type_name = <rule>-user_type ).
                       ENDIF.
                     CATCH: cx_sy_dyn_call_excp_not_found,
                            cx_sy_dyn_call_illegal_class,
@@ -293,7 +301,7 @@ CLASS zcl_adata_validator IMPLEMENTATION.
                       set_result( row = data_row fname = <config>-class msg_text = class_error_message ).
                   ENDTRY.
                 ELSE.
-                  set_result( row = data_row fname = <config>-class msg_text = class_error_message ).
+                  zcx_adv_exception=>raise( |Class { <config>-class } not found, check your config. | ).
                 ENDIF.
               ENDIF.
             ENDIF.

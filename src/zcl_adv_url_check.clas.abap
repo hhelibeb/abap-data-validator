@@ -17,9 +17,9 @@ CLASS zcl_adv_url_check IMPLEMENTATION.
 
     valid = abap_false.
 
-    DATA(string_number) = CONV string( data ).
+    DATA(string_url) = CONV string( data ).
 *regex source: https://www.regextester.com/94502
-    IF not contains( val = string_number regex = `^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#\[\]@!\$&'\(\)\*\+,;=.]+$` ).
+    IF not contains( val = string_url regex = `^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#\[\]@!\$&'\(\)\*\+,;=.]+$` ).
       RETURN.
     ENDIF.
 
