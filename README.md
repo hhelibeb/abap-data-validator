@@ -48,7 +48,7 @@ Class ZCL_ADATA_VALIDATOR provide a general validation method: VALIDATE.
         DATA(msg) = ex->get_text( ).
     ENDTRY.    
 
-The ZCL_ADATA_VALIDATOR calls each check class internally by the exporting rules and returns the result.
+The ZCL_ADATA_VALIDATOR calls check methods internally according to the exporting rules and returns the result.
 
 ### Rules customization
 By the parameter RULES, you can customize the validation.
