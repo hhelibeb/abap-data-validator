@@ -14,7 +14,7 @@ ENDCLASS.
 CLASS ZCL_ADV_TIMESTAMP_CHECK IMPLEMENTATION.
 
 
-  METHOD zif_adv_check~check.
+  METHOD zif_adv_check~is_valid.
 
     valid = abap_false.
 
@@ -27,7 +27,7 @@ CLASS ZCL_ADV_TIMESTAMP_CHECK IMPLEMENTATION.
     DATA(date) = CONV datum( string_ts(8) ).
     DATA(time) = CONV uzeit( string_ts+8(6) ).
 
-    IF zcl_adv_date_check=>zif_adv_check~check( date ) AND zcl_adv_time_check=>zif_adv_check~check( time ).
+    IF zcl_adv_date_check=>zif_adv_check~is_valid( date ) AND zcl_adv_time_check=>zif_adv_check~is_valid( time ).
       valid = abap_true.
     ENDIF.
   ENDMETHOD.

@@ -28,7 +28,7 @@ CLASS ltc_int4_check IMPLEMENTATION.
 
     LOOP AT cases ASSIGNING FIELD-SYMBOL(<case>).
 
-      DATA(valid) = zcl_adv_int4_check=>zif_adv_check~check( <case>-data ).
+      DATA(valid) = zcl_adv_int4_check=>zif_adv_check~is_valid( <case>-data ).
 
       cl_abap_unit_assert=>assert_equals(
         act = valid
@@ -52,7 +52,7 @@ CLASS ltc_int4_check IMPLEMENTATION.
 
     LOOP AT cases ASSIGNING FIELD-SYMBOL(<case>).
 
-      DATA(valid) = zcl_adv_int4_check=>zif_adv_check~check( <case>-data ).
+      DATA(valid) = zcl_adv_int4_check=>zif_adv_check~is_valid( <case>-data ).
 
       cl_abap_unit_assert=>assert_equals(
         act = valid

@@ -13,7 +13,7 @@ ENDCLASS.
 
 CLASS zcl_adv_regex_check IMPLEMENTATION.
 
-  METHOD zif_adv_check~check.
+  METHOD zif_adv_check~is_valid.
 
     DATA: regex TYPE REF TO cl_abap_regex.
 

@@ -28,7 +28,7 @@ CLASS ltc_regex_check IMPLEMENTATION.
 
     LOOP AT cases ASSIGNING FIELD-SYMBOL(<case>).
 
-      DATA(valid) = zcl_adv_regex_check=>zif_adv_check~check( <case>-data ).
+      DATA(valid) = zcl_adv_regex_check=>zif_adv_check~is_valid( <case>-data ).
 
       cl_abap_unit_assert=>assert_equals(
         act = valid
@@ -52,7 +52,7 @@ CLASS ltc_regex_check IMPLEMENTATION.
 
     LOOP AT cases ASSIGNING FIELD-SYMBOL(<case>).
 
-      DATA(valid) = zcl_adv_regex_check=>zif_adv_check~check( <case>-data ).
+      DATA(valid) = zcl_adv_regex_check=>zif_adv_check~is_valid( <case>-data ).
 
       cl_abap_unit_assert=>assert_equals(
         act = valid

@@ -13,7 +13,7 @@ ENDCLASS.
 
 CLASS zcl_adv_url_check IMPLEMENTATION.
 
-  METHOD zif_adv_check~check.
+  METHOD zif_adv_check~is_valid.
 
     valid = abap_false.
 

@@ -14,7 +14,7 @@ ENDCLASS.
 CLASS zcl_adv_email_check IMPLEMENTATION.
 
 
-  METHOD zif_adv_check~check.
+  METHOD zif_adv_check~is_valid.
 
     valid = abap_false.
 
