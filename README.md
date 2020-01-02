@@ -21,7 +21,22 @@ ABAP Data Validation supports validations for types below (updating),
 - [x] JSON.
 - [x] HEX.
 
-## Input / Output
+## Usage
+
+### Single field validation 
+Every check class implements the interface ZIF_ADV_CHECK. You can use static method ZIF_ADV_CHECK~IS_VALID to validate data just like a built-in function. Example:
+
+    IF zcl_adv_email_check=>zif_adv_check~is_valid( 'example@github.com' ).
+     "do something
+    ENDIF.
+
+Or use the ALIASES:
+
+    IF zcl_adv_email_check=>is_valid( 'example@github.com' ).
+     "do something
+    ENDIF.
+
+### Internal table validation
 Class ZCL_ADATA_VALIDATOR provide a general validation method: VALIDATE. 
 
     TRY.
@@ -33,7 +48,9 @@ Class ZCL_ADATA_VALIDATOR provide a general validation method: VALIDATE.
         DATA(msg) = ex->get_text( ).
     ENDTRY.    
 
-## Rules customization
+The ZCL_ADATA_VALIDATOR calls each check class internally by the exporting rules and returns the result.
+
+### Rules customization
 By the parameter RULES, you can customize the validation.
 
     DATA: rules TYPE zcl_adata_validator=>ty_rules_t.
@@ -44,7 +61,7 @@ By the parameter RULES, you can customize the validation.
       ( fname = 'FIELD3' required = abap_true  initial_or_empty = abap_false  user_type = zcl_adata_validator=>c_type_email )
     ).
 
-## Extend validation for special type
+### Extend validation for special type
 There are two ways to extend the validation:
 * Pass regular expression by RULES-REGEX.
 * Create a new class which implements the interface ZIF_ADV_CHECK, and add the type name & class name in ZCL_ADATA_VALIDATOR->CONSTRUCTOR.
@@ -74,10 +91,10 @@ Or add a new class:
 
     ENDMETHOD.
     
-## Configuration 
+### Configuration 
 The configuration is hard code in class ZCL_ADATA_VALIDATOR method CONSTRUCTOR, but you can redefine the CONSTRUCTOR to retrieve configuration from database tables or other source. It allows you to change the function without modify existed program.
 
-## Requirment
+### Requirment
 ABAP Version: 740 sp08 or higher
 
 ## Exception
