@@ -5,6 +5,7 @@ CLASS zcl_adv_hex_check DEFINITION
 
   PUBLIC SECTION.
     INTERFACES: zif_adv_check.
+    ALIASES: is_valid FOR zif_adv_check~is_valid.
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
