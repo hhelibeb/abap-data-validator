@@ -77,6 +77,9 @@ Or add a new class:
 ## Configuration 
 The configuration is hard code in class ZCL_ADATA_VALIDATOR method CONSTRUCTOR, but you can redefine the CONSTRUCTOR to retrieve configuration from database tables or other source. It allows you to change the function without modify existed program.
 
+## Requirment
+ABAP Version: 740 sp08 or higher
+
 ## Exception
 The exception class ZCX_ADV_EXCEPTION is copied from ZCX_ABAPGIT_EXCEPTION for it is easy to use:)
 
