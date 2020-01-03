@@ -1,7 +1,7 @@
-# abap-data-validation
+# abap-data-validator
 A data validation tool.
 
-ABAP Data Validation is a tool to simplify data validation process for SAP ABAP development.
+ABAP Data Validator is a tool to simplify data validation process for SAP ABAP development.
 
 Features and Goals:
 * General input/output.
@@ -10,7 +10,7 @@ Features and Goals:
 * Centralize some validation logic.
 
 ## Type list
-ABAP Data Validation supports validations for types below (updating),
+ABAP Data Validator supports validations for types below (updating),
 - [x] Date.
 - [x] Time.
 - [x] Timestamp.
