@@ -37,6 +37,8 @@ Or use the ALIASES:
      "do something
     ENDIF.
 
+All classes have the unit tests.
+
 ### Internal table validation
 Class ZCL_ADATA_VALIDATOR provide a general validation method: VALIDATE. 
 
