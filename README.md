@@ -20,6 +20,7 @@ ABAP Data Validation supports validations for types below (updating),
 - [x] URL.
 - [x] JSON.
 - [x] HEX.
+- [x] IMEI.
 
 ## Usage
 
