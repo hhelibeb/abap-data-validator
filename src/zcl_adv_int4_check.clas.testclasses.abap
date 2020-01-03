@@ -24,6 +24,8 @@ CLASS ltc_int4_check IMPLEMENTATION.
     cases = VALUE #(
         ( data = '-2147483649'  valid = abap_false )
         ( data = '2147483648'   valid = abap_false )
+        ( data = '+2147483647-'   valid = abap_false )
+        ( data = '-2147483647+'   valid = abap_false )
     ).
 
     LOOP AT cases ASSIGNING FIELD-SYMBOL(<case>).
@@ -46,7 +48,10 @@ CLASS ltc_int4_check IMPLEMENTATION.
 
     cases = VALUE #(
         ( data = '-2147483648'  valid = abap_true )
+        ( data = '+2147483647'   valid = abap_true )
         ( data = '2147483647'   valid = abap_true )
+        ( data = '2147483647-'   valid = abap_true )
+        ( data = '2147483647-'   valid = abap_true )
         ( data = '0'            valid = abap_true )
     ).
 
