@@ -51,7 +51,7 @@ CLASS ltc_int4_check IMPLEMENTATION.
         ( data = '+2147483647'   valid = abap_true )
         ( data = '2147483647'   valid = abap_true )
         ( data = '2147483647-'   valid = abap_true )
-        ( data = '2147483647-'   valid = abap_true )
+        ( data = '2147483647+'   valid = abap_true )
         ( data = '0'            valid = abap_true )
     ).
 
