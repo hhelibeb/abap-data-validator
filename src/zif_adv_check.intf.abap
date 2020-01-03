@@ -4,7 +4,7 @@ INTERFACE zif_adv_check
   CONSTANTS: c_interface_name TYPE seoclsname VALUE 'ZIF_ADV_CHECK'.
   CONSTANTS: c_method_name TYPE seocpdname VALUE 'IS_VALID'.
 
-  CLASS-METHODS: is_valid IMPORTING data         TYPE any
+  CLASS-METHODS: is_valid IMPORTING data         TYPE simple
                           RETURNING VALUE(valid) TYPE abap_bool.
 
 ENDINTERFACE.
