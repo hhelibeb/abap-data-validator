@@ -1,5 +1,5 @@
 *"* use this source file for your ABAP unit test classes
-CLASS ltc_json_check DEFINITION FINAL FOR TESTING DURATION SHORT RISK LEVEL HARMLESS.
+CLASS ltc_imei_check DEFINITION FINAL FOR TESTING DURATION SHORT RISK LEVEL HARMLESS.
   PRIVATE SECTION.
 
 
@@ -15,21 +15,24 @@ CLASS ltc_json_check DEFINITION FINAL FOR TESTING DURATION SHORT RISK LEVEL HARM
 
 ENDCLASS.
 
-CLASS ltc_json_check IMPLEMENTATION.
+CLASS ltc_imei_check IMPLEMENTATION.
 
   METHOD invalid_input.
 
     DATA: cases TYPE ty_case_t.
 
     cases = VALUE #(
-        ( data = 'zzz'   valid = abap_false )
-        ( data = '{A:1}' valid = abap_false )
-        ( data = '' valid = abap_false )
+        ( data = '49-015420-323751-8'  valid = abap_false )
+        ( data = '490154203237510'  valid = abap_false )
+        ( data = '3518720923716418'  valid = abap_false )
+        ( data = '49015420323751X'  valid = abap_false )
+        ( data = '49015420323757'  valid = abap_false )
+        ( data = ''  valid = abap_false )
     ).
 
     LOOP AT cases ASSIGNING FIELD-SYMBOL(<case>).
 
-      DATA(valid) = zcl_adv_json_check=>zif_adv_check~is_valid( <case>-data ).
+      DATA(valid) = zcl_adv_imei_check=>zif_adv_check~is_valid( <case>-data ).
 
       cl_abap_unit_assert=>assert_equals(
         act = valid
@@ -46,15 +49,13 @@ CLASS ltc_json_check IMPLEMENTATION.
     DATA: cases TYPE ty_case_t.
 
     cases = VALUE #(
-        ( data = '{"A":1}'    valid = abap_true )
-        ( data = '123'        valid = abap_true )
-        ( data = '"string"'   valid = abap_true )
-        ( data = '[{"field1":"Hello World!","field2":"Eat me!","field3":20,"field4":"I am BIG!"},{"field1":"Hello World!","field2":"Eat me!","field3":20,"field4":"I am BIG!"}]' valid = abap_true )
+        ( data = '490154203237518' valid = abap_true )
+        ( data = '351872092371647' valid = abap_true )
     ).
 
     LOOP AT cases ASSIGNING FIELD-SYMBOL(<case>).
 
-      DATA(valid) = zcl_adv_json_check=>zif_adv_check~is_valid( <case>-data ).
+      DATA(valid) = zcl_adv_imei_check=>zif_adv_check~is_valid( <case>-data ).
 
       cl_abap_unit_assert=>assert_equals(
         act = valid

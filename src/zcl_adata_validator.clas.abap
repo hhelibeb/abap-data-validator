@@ -41,6 +41,7 @@ CLASS zcl_adata_validator DEFINITION
     CONSTANTS: c_type_url TYPE ty_spec_type VALUE 'URL'.
     CONSTANTS: c_type_hex TYPE ty_spec_type VALUE 'HEX'.
     CONSTANTS: c_type_json TYPE ty_spec_type VALUE 'JSON'.
+    CONSTANTS: c_type_imei TYPE ty_spec_type VALUE 'IMEI'.
 
 
     METHODS: constructor.
@@ -145,6 +146,7 @@ CLASS zcl_adata_validator IMPLEMENTATION.
       ( type = c_type_url       class = 'ZCL_ADV_URL_CHECK' )
       ( type = c_type_hex       class = 'ZCL_ADV_HEX_CHECK' )
       ( type = c_type_json      class = 'ZCL_ADV_JSON_CHECK' )
+      ( type = c_type_imei      class = 'ZCL_ADV_IMEI_CHECK' )
     ).
 
     required_message         = |&1 is required. |.

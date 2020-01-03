@@ -292,6 +292,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
       ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_url       )
       ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_hex       )
       ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_json      )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_imei      )
     ).
 
     cases = VALUE #(
