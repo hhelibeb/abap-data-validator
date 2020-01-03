@@ -81,7 +81,7 @@ Regex example. If you want to check whether the input email is a gmail address, 
       ( fname = 'FIELD3' user_type = zcl_adata_validator=>c_type_email regex = 'gmail\.com$' regex_msg = 'Only gmail supported')
     ).
     
-Or add a new class: 
+Or add a new class, and add it to check config on demand: 
 
     METHOD constructor.
 
