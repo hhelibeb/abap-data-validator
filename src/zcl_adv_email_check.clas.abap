@@ -22,7 +22,7 @@ CLASS zcl_adv_email_check IMPLEMENTATION.
     DATA(string_email) = CONV string( data ).
 
 *regex source: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/email
-    IF NOT contains( val = string_email regex = '^[a-zA-Z0-9.!#$%&''*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$').
+    IF NOT contains( val = string_email regex = '^[a-zA-Z0-9.!#$%&''*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$' ).
       RETURN.
     ENDIF.
 
