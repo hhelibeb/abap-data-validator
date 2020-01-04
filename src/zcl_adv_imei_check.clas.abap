@@ -23,7 +23,7 @@ CLASS zcl_adv_imei_check IMPLEMENTATION.
 
     DATA(imei_string) = CONV string( data ).
 
-    IF NOT contains( val = imei_string regex = '^\d{15}$').
+    IF NOT contains( val = imei_string regex = '^\d{15}$' ).
       RETURN.
     ENDIF.
 

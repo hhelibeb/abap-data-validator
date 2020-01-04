@@ -84,9 +84,9 @@ CLASS ltc_validation_check IMPLEMENTATION.
     DATA: cases TYPE ty_case_t.
 
     cases = VALUE #(
-        ( field1 = '19000000' field6 = 'ZZZ@...')
-        ( field1 = '202011321' field6 = 'ZZZ2gmail.com')
-        ( field1 = '' field2 = '20220101' field6 = '')
+        ( field1 = '19000000' field6 = 'ZZZ@...' )
+        ( field1 = '202011321' field6 = 'ZZZ2gmail.com' )
+        ( field1 = '' field2 = '20220101' field6 = '' )
     ).
 
     rules = VALUE #(
@@ -185,9 +185,9 @@ CLASS ltc_validation_check IMPLEMENTATION.
     DATA: cases TYPE ty_case_t.
 
     cases = VALUE #(
-        ( field1 = '19680101' field6 = 'ZZZ@sf.com')
-        ( field1 = '20000229' field6 = 'ZZ.Z2@gmail.com.cn')
-        ( field1 = '99991231' field2 = '' field6 = 'moe@moe.xyz')
+        ( field1 = '19680101' field6 = 'ZZZ@sf.com' )
+        ( field1 = '20000229' field6 = 'ZZ.Z2@gmail.com.cn' )
+        ( field1 = '99991231' field2 = '' field6 = 'moe@moe.xyz' )
     ).
 
     rules = VALUE #(
@@ -227,13 +227,13 @@ CLASS ltc_validation_check IMPLEMENTATION.
     DATA: cases TYPE ty_case_t.
 
     cases = VALUE #(
-        ( field6 = 'ZZ.Z2@gmail.com')
-        ( field6 = 'ZZ.Z2@gmail.com.cn')
-        ( field6 = '')
+        ( field6 = 'ZZ.Z2@gmail.com' )
+        ( field6 = 'ZZ.Z2@gmail.com.cn' )
+        ( field6 = '' )
     ).
 
     rules = VALUE #(
-      ( fname = 'FIELD6' user_type = zcl_adata_validator=>c_type_email regex = 'gmail\.com$' regex_msg = 'Only gmail supported')
+      ( fname = 'FIELD6' user_type = zcl_adata_validator=>c_type_email regex = 'gmail\.com$' regex_msg = 'Only gmail supported' )
     ).
 
     TRY.
@@ -296,7 +296,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
     ).
 
     cases = VALUE #(
-        ( field1 = 'A$$')
+        ( field1 = 'A$$' )
     ).
 
     DATA(adata_validation) = NEW zcl_adata_validator( ).

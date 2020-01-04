@@ -19,7 +19,7 @@ CLASS zcl_adv_date_check IMPLEMENTATION.
 
     DATA(string_date) = CONV string( data ).
 
-    IF NOT contains( val = string_date regex = '^\d{8}$').
+    IF NOT contains( val = string_date regex = '^\d{8}$' ).
       RETURN.
     ENDIF.
 

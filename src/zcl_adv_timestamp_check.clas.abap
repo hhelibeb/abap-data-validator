@@ -21,7 +21,7 @@ CLASS ZCL_ADV_TIMESTAMP_CHECK IMPLEMENTATION.
 
     DATA(string_ts) = CONV string( data ).
 
-    IF not contains( val = string_ts regex = '\d{14} ?$').
+    IF not contains( val = string_ts regex = '\d{14} ?$' ).
       RETURN.
     ENDIF.
 

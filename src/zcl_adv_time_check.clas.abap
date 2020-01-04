@@ -19,7 +19,7 @@ CLASS zcl_adv_time_check IMPLEMENTATION.
 
     DATA(string_time) = CONV string( data ).
 
-    IF NOT contains( val = string_time regex = '^\d{6}$').
+    IF NOT contains( val = string_time regex = '^\d{6}$' ).
       RETURN.
     ENDIF.
 
