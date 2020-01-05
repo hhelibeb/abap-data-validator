@@ -78,7 +78,7 @@ DATA: cases TYPE ty_case_t.
 
 cases = VALUE #(
     ( field3 = 'ZZZ2@gmail.com') "correct
-    ( field3 = 'ZZ.Z2@gmail.com.cn') "incorrect
+    ( field3 = 'ZZZ2@gmail.com.cn') "incorrect
 ).
 
 rules = VALUE #(
