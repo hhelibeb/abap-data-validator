@@ -61,6 +61,7 @@ CLASS zcx_adv_exception DEFINITION
         !msgv2    TYPE symsgv OPTIONAL
         !msgv3    TYPE symsgv OPTIONAL
         !msgv4    TYPE symsgv OPTIONAL.
+    "! <p class="shorttext synchronized" lang="en"></p>
     METHODS get_source_position REDEFINITION.
   PROTECTED SECTION.
   PRIVATE SECTION.
