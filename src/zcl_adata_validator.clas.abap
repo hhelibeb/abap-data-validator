@@ -51,7 +51,7 @@ CLASS zcl_adata_validator DEFINITION
     METHODS: "! <p class="shorttext synchronized" lang="en"></p>
       "! <p>Validation method for internal table</p>
       "! @parameter rules | rules for validation <p class="shorttext synchronized" lang="en"></p>
-      "! @parameter data | internal table to validate <p class="shorttext synchronized" lang="en"></p>
+      "! @parameter data | internal table to be validated <p class="shorttext synchronized" lang="en"></p>
       "! @parameter results | if all of data is valid, result will be empty <p class="shorttext synchronized" lang="en"></p>
       "! @raising zcx_adv_exception | <p class="shorttext synchronized" lang="en"></p>
       validate IMPORTING rules          TYPE ty_rules_t
@@ -101,7 +101,7 @@ ENDCLASS.
 
 
 
-CLASS ZCL_ADATA_VALIDATOR IMPLEMENTATION.
+CLASS zcl_adata_validator IMPLEMENTATION.
 
 
   METHOD basic_check.
@@ -133,15 +133,13 @@ CLASS ZCL_ADATA_VALIDATOR IMPLEMENTATION.
                 msg_text = initial_or_empty_message
               ).
             ENDIF.
-          ELSE.
-            IF <rule>-regex IS NOT INITIAL AND ( <field> IS NOT INITIAL AND ( CONV string( <field> ) <> '' ) ) .
-              IF NOT contains( val = <field> regex = <rule>-regex ).
-                set_result(
-                  row      = data_row
-                  fname    = <rule>-fname
-                  msg_text = <rule>-regex_msg
-                ).
-              ENDIF.
+          ELSEIF <rule>-regex IS NOT INITIAL AND ( <field> IS NOT INITIAL AND ( CONV string( <field> ) <> '' ) ).
+            IF NOT contains( val = <field> regex = <rule>-regex ).
+              set_result(
+                row      = data_row
+                fname    = <rule>-fname
+                msg_text = <rule>-regex_msg
+              ).
             ENDIF.
           ENDIF.
 

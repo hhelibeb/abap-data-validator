@@ -22,9 +22,7 @@ CLASS zcl_adv_json_check IMPLEMENTATION.
     IF  string_json IS INITIAL.
       RETURN.
     ENDIF.
-    DATA(json_data) = /ui2/cl_json=>generate(
-        json  = string_json
-    ).
+    DATA(json_data) = /ui2/cl_json=>generate( json = string_json ).
 
     IF json_data IS INITIAL.
       RETURN.
