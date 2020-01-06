@@ -64,7 +64,7 @@
         },
         "msag_consistency": true,
         "nesting": {
-            "depth": 6,
+            "depth": 8,
             "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#keep-the-nesting-depth-low"
         },
         "obsolete_statement": {
