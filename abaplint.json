@@ -1,0 +1,155 @@
+{
+    "global": {
+        "files": "/src/**/*.*",
+        "skipGeneratedGatewayClasses": true,
+        "skipGeneratedPersistentClasses": true,
+        "skipGeneratedFunctionGroups": true,
+        "applyUnspecifiedRules": false
+    },
+    "syntax": {
+        "version": "v740sp08",
+        "errorNamespace": "",
+        "globalConstants": [],
+        "globalMacros": []
+    },
+    "dependencies": [
+        {
+            "url": "https://github.com/abaplint/deps",
+            "folder": "/deps",
+            "files": "/src/**/*.*"
+        }
+    ],
+    "rules": {
+        "avoid_use": {
+            "define": true,
+            "endselect": true,
+            "execSQL": true,
+            "kernelCall": true,
+            "communication": true,
+            "statics": true,
+            "systemCall": true
+        },
+        "breakpoint": true,
+        "commented_code": true,
+        "description_empty": true,
+        "empty_statement": true,
+        "empty_structure": {
+            "loop": true,
+            "if": true,
+            "while": true,
+            "case": true,
+            "select": true,
+            "do": true,
+            "at": true
+        },
+        "exporting": {
+            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#omit-the-optional-keyword-exporting"
+        },
+        "functional_writing": {
+            "ignoreExceptions": true
+        },
+        "global_class": true,
+        "identical_form_names": true,
+        "if_in_if": {
+            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#keep-the-nesting-depth-low"
+        },
+        "inline_data_old_versions": true,
+        "line_length": {
+            "length": 120,
+            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#stick-to-a-reasonable-line-length"
+        },
+        "max_one_statement": {
+            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#no-more-than-one-statement-per-line"
+        },
+        "message_exists": true,
+        "method_length": {
+            "statements": 100,
+            "ignoreTestClasses": true,
+            "errorWhenEmpty": true,
+            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#keep-methods-small"
+        },
+        "mix_returning": {
+            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#use-either-returning-or-exporting-or-changing-but-not-a-combination"
+        },
+        "msag_consistency": true,
+        "nesting": {
+            "depth": 5,
+            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#keep-the-nesting-depth-low"
+        },
+        "obsolete_statement": {
+            "refresh": true,
+            "compute": true,
+            "add": true,
+            "subtract": true,
+            "multiply": true,
+            "move": true,
+            "divide": true,
+            "requested": true,
+            "occurs": true
+        },
+        "parser_error": true,
+        "preferred_compare_operator": {
+            "badOperators": [
+                "EQ",
+                "NE",
+                "GE",
+                "GT",
+                "LT",
+                "LE"
+            ]
+        },
+        "short_case": {
+            "length": 1,
+            "allow": []
+        },
+        "superclass_final": true,
+        "unreachable_code": true,
+        "use_new": true,
+        "when_others_last": true,
+        "ambiguous_statement": true,
+        "begin_end_names": true,
+        "check_transformation_exists": true,
+        "check_syntax": true,
+        "form_tables_obsolete": true,
+        "tabl_enhancement_category": true,
+        "implement_methods": true,
+        "local_testclass_location": true,
+        "main_file_contents": true,
+        "rfc_error_handling": true,
+        "indentation": {
+            "alignTryCatch": false,
+            "ignoreExceptions": false,
+            "globalClassSkipFirst": false,
+            "ignoreGlobalClassDefinition": false,
+            "ignoreGlobalInterface": false
+        },
+        "sequential_blank": {
+            "lines": 3
+        },
+        "empty_line_in_statement": {
+            "allowChained": true
+        },
+        "form_no_dash": true,
+        "check_abstract": true,
+        "no_public_attributes": {
+            "allowReadOnly": true
+        },
+        "abapdoc": true,
+        "prefer_returning_to_exporting": true,
+        "keep_single_parameter_on_one_line": {
+            "length": 120
+        },
+        "allowed_object_naming": true,
+        "fully_type_constants": true,
+        "check_comments": {
+            "allowEndOfLine": true
+        },
+        "selection_screen_naming": {
+            "enabled": false,
+            "selectOption": "^s_.+$",
+            "parameter": "^p_.+$",
+            "patternKind": "forbidden"
+        },
+        "check_text_elements": true
+    }
+}
