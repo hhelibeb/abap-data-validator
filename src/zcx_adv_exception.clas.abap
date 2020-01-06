@@ -1,5 +1,5 @@
 "! ADV general error
-CLASS zcx_ADV_exception DEFINITION
+CLASS zcx_adv_exception DEFINITION
   PUBLIC
   INHERITING FROM cx_static_check
   CREATE PUBLIC.
@@ -23,7 +23,7 @@ CLASS zcx_ADV_exception DEFINITION
         !iv_text     TYPE clike
         !ix_previous TYPE REF TO cx_root OPTIONAL
       RAISING
-        zcx_ADV_exception.
+        zcx_adv_exception.
     "! Raise exception with T100 message
     "! <p>
     "! Will default to sy-msg* variables. These need to be set right before calling this method.
@@ -44,7 +44,15 @@ CLASS zcx_ADV_exception DEFINITION
         VALUE(iv_msgv3) TYPE symsgv DEFAULT sy-msgv3
         VALUE(iv_msgv4) TYPE symsgv DEFAULT sy-msgv4
       RAISING
-        zcx_ADV_exception.
+        zcx_adv_exception.
+    "! <p class="shorttext synchronized" lang="en"></p>
+    "!
+    "! @parameter textid | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter previous | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter msgv1 | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter msgv2 | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter msgv3 | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter msgv4 | <p class="shorttext synchronized" lang="en"></p>
     METHODS constructor
       IMPORTING
         !textid   LIKE if_t100_message=>t100key OPTIONAL
@@ -53,7 +61,7 @@ CLASS zcx_ADV_exception DEFINITION
         !msgv2    TYPE symsgv OPTIONAL
         !msgv3    TYPE symsgv OPTIONAL
         !msgv4    TYPE symsgv OPTIONAL.
-    METHODS get_longtext REDEFINITION.
+    "! <p class="shorttext synchronized" lang="en"></p>
     METHODS get_source_position REDEFINITION.
   PROTECTED SECTION.
   PRIVATE SECTION.
@@ -67,7 +75,7 @@ ENDCLASS.
 
 
 
-CLASS zcx_ADV_exception IMPLEMENTATION.
+CLASS zcx_adv_exception IMPLEMENTATION.
 
 
   METHOD constructor ##ADT_SUPPRESS_GENERATION.
@@ -88,16 +96,6 @@ CLASS zcx_ADV_exception IMPLEMENTATION.
     save_callstack( ).
 
   ENDMETHOD.
-
-
-  METHOD get_longtext.
-
-    DATA: lo_message_helper TYPE REF TO object.
-
-    result = super->get_longtext( ).
-
-  ENDMETHOD.
-
 
   METHOD raise.
     DATA: lv_msgv1    TYPE symsgv,
@@ -141,7 +139,7 @@ CLASS zcx_ADV_exception IMPLEMENTATION.
     lv_msgv3 = sy-msgv3.
     lv_msgv4 = sy-msgv4.
 
-    RAISE EXCEPTION TYPE zcx_ADV_exception
+    RAISE EXCEPTION TYPE zcx_adv_exception
       EXPORTING
         textid   = ls_t100_key
         msgv1    = lv_msgv1
@@ -166,7 +164,7 @@ CLASS zcx_ADV_exception IMPLEMENTATION.
       CLEAR ls_t100_key.
     ENDIF.
 
-    RAISE EXCEPTION TYPE zcx_ADV_exception
+    RAISE EXCEPTION TYPE zcx_adv_exception
       EXPORTING
         textid = ls_t100_key
         msgv1  = iv_msgv1

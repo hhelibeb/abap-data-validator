@@ -43,9 +43,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
     ENDTRY.
 
     IF ex IS NOT BOUND.
-      cl_abap_unit_assert=>fail(
-         msg = 'Table with deep structure should be not supported. '
-     ).
+      cl_abap_unit_assert=>fail( msg = 'Table with deep structure should be not supported. ' ).
     ENDIF.
   ENDMETHOD.
 
@@ -70,9 +68,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
     ENDTRY.
 
     IF ex IS BOUND OR result IS NOT INITIAL.
-      cl_abap_unit_assert=>fail(
-         msg = 'No exception should be raised with empty input'
-     ).
+      cl_abap_unit_assert=>fail( msg = 'No exception should be raised with empty input' ).
     ENDIF.
 
   ENDMETHOD.
@@ -107,37 +103,27 @@ CLASS ltc_validation_check IMPLEMENTATION.
     ENDTRY.
 
     IF ex IS BOUND .
-      cl_abap_unit_assert=>fail(
-         msg = 'No exception should be raised'
-     ).
+      cl_abap_unit_assert=>fail( msg = 'No exception should be raised' ).
     ENDIF.
 
     READ TABLE result WITH KEY row = 1 fname = 'FIELD1' error = abap_true TRANSPORTING NO FIELDS.
     IF sy-subrc <> 0.
-      cl_abap_unit_assert=>fail(
-        msg = |Result of row '1' fname 'FIELD1' should be error. |
-    ).
+      cl_abap_unit_assert=>fail( msg = |Result of row '1' fname 'FIELD1' should be error. | ).
     ENDIF.
 
     READ TABLE result WITH KEY row = 1 fname = 'FIELD6' error = abap_true TRANSPORTING NO FIELDS.
     IF sy-subrc <> 0.
-      cl_abap_unit_assert=>fail(
-        msg = |Result of row '1' fname 'FIELD6' s should be error. |
-    ).
+      cl_abap_unit_assert=>fail( msg = |Result of row '1' fname 'FIELD6' s should be error. | ).
     ENDIF.
 
     READ TABLE result WITH KEY row = 2 fname = 'FIELD2' error = abap_true TRANSPORTING NO FIELDS.
     IF sy-subrc = 0.
-      cl_abap_unit_assert=>fail(
-        msg = |Result of row '2' fname 'FIELD2' should not be error. |
-    ).
+      cl_abap_unit_assert=>fail( msg = |Result of row '2' fname 'FIELD2' should not be error. | ).
     ENDIF.
 
     READ TABLE result WITH KEY row = 3 fname = 'FIELD2' error = abap_true TRANSPORTING NO FIELDS.
     IF sy-subrc <> 0.
-      cl_abap_unit_assert=>fail(
-        msg = |Result of row '1' fname 'FIELD6' should be error. |
-    ).
+      cl_abap_unit_assert=>fail( msg = |Result of row '1' fname 'FIELD6' should be error. | ).
     ENDIF.
 
   ENDMETHOD.
@@ -166,15 +152,11 @@ CLASS ltc_validation_check IMPLEMENTATION.
     ENDTRY.
 
     IF ex IS BOUND .
-      cl_abap_unit_assert=>fail(
-         msg = 'No exception should be raised'
-     ).
+      cl_abap_unit_assert=>fail( msg = 'No exception should be raised' ).
     ENDIF.
 
     IF result IS NOT INITIAL.
-      cl_abap_unit_assert=>fail(
-         msg = 'No error should be raised'
-     ).
+      cl_abap_unit_assert=>fail( msg = 'No error should be raised' ).
     ENDIF.
 
   ENDMETHOD.
@@ -208,15 +190,11 @@ CLASS ltc_validation_check IMPLEMENTATION.
     ENDTRY.
 
     IF ex IS BOUND .
-      cl_abap_unit_assert=>fail(
-         msg = 'No exception should be raised'
-     ).
+      cl_abap_unit_assert=>fail( msg = 'No exception should be raised' ).
     ENDIF.
 
     IF result IS NOT INITIAL.
-      cl_abap_unit_assert=>fail(
-         msg = 'No error should be raised'
-     ).
+      cl_abap_unit_assert=>fail( msg = 'No error should be raised' ).
     ENDIF.
   ENDMETHOD.
 
@@ -247,31 +225,23 @@ CLASS ltc_validation_check IMPLEMENTATION.
 
 
     IF ex IS BOUND .
-      cl_abap_unit_assert=>fail(
-         msg = 'No exception should be raised'
-     ).
+      cl_abap_unit_assert=>fail( msg = 'No exception should be raised' ).
     ENDIF.
 
     READ TABLE result WITH KEY row = 1 fname = 'FIELD6' error = abap_true TRANSPORTING NO FIELDS.
     IF sy-subrc = 0.
-      cl_abap_unit_assert=>fail(
-        msg = |Result of row '1' fname 'FIELD6' should not be error. |
-    ).
+      cl_abap_unit_assert=>fail( msg = |Result of row '1' fname 'FIELD6' should not be error. | ).
     ENDIF.
 
     READ TABLE result WITH KEY row = 2 fname = 'FIELD6' error = abap_true TRANSPORTING NO FIELDS.
     IF sy-subrc <> 0.
-      cl_abap_unit_assert=>fail(
-        msg = |Result of row '2' fname 'FIELD6' should be error. |
-    ).
+      cl_abap_unit_assert=>fail( msg = |Result of row '2' fname 'FIELD6' should be error. | ).
 
     ENDIF.
 
     READ TABLE result WITH KEY row = 3 fname = 'FIELD6' error = abap_true TRANSPORTING NO FIELDS.
     IF sy-subrc = 0.
-      cl_abap_unit_assert=>fail(
-        msg = |Result of row '3' fname 'FIELD6' should not be error. |
-    ).
+      cl_abap_unit_assert=>fail( msg = |Result of row '3' fname 'FIELD6' should not be error. | ).
     ENDIF.
 
   ENDMETHOD.
@@ -307,9 +277,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
          ).
       CATCH zcx_adv_exception INTO DATA(ex).
         DATA(msg) = ex->get_text( ).
-        cl_abap_unit_assert=>fail(
-           msg = msg
-        ).
+        cl_abap_unit_assert=>fail( msg = msg ).
     ENDTRY.
 
   ENDMETHOD.

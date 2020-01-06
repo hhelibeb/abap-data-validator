@@ -44,12 +44,20 @@ CLASS zcl_adata_validator DEFINITION
     CONSTANTS: c_type_imei TYPE ty_spec_type VALUE 'IMEI'.
 
 
-    METHODS: constructor.
+    METHODS: "! <p class="shorttext synchronized" lang="en"></p>
+      "! <p>initialize some configurations, redefine it on demand</p>
+      constructor.
 
-    METHODS: validate IMPORTING rules          TYPE ty_rules_t
-                                data           TYPE ANY TABLE
-                      RETURNING VALUE(results) TYPE ty_result_t
-                      RAISING   zcx_adv_exception.
+    METHODS: "! <p class="shorttext synchronized" lang="en"></p>
+      "! <p>Validation method for internal table</p>
+      "! @parameter rules | rules for validation <p class="shorttext synchronized" lang="en"></p>
+      "! @parameter data | internal table to be validated <p class="shorttext synchronized" lang="en"></p>
+      "! @parameter results | if all of data is valid, result will be empty <p class="shorttext synchronized" lang="en"></p>
+      "! @raising zcx_adv_exception | <p class="shorttext synchronized" lang="en"></p>
+      validate IMPORTING rules          TYPE ty_rules_t
+                         data           TYPE ANY TABLE
+               RETURNING VALUE(results) TYPE ty_result_t
+               RAISING   zcx_adv_exception.
 
   PROTECTED SECTION.
 
@@ -109,19 +117,29 @@ CLASS zcl_adata_validator IMPLEMENTATION.
 
           IF <rule>-required = abap_true.
             IF <field> IS INITIAL OR ( CONV string( <field> ) = '' ).
-              set_result( row = data_row fname = <rule>-fname msg_text = required_message ).
+              set_result(
+                row      = data_row
+                fname    = <rule>-fname
+                msg_text = required_message
+              ).
             ENDIF.
           ENDIF.
 
           IF <rule>-initial_or_empty = abap_true.
             IF <field> IS NOT INITIAL AND ( CONV string( <field> ) <> '' ).
-              set_result( row = data_row fname = <rule>-fname msg_text = initial_or_empty_message ).
+              set_result(
+                row      = data_row
+                fname    = <rule>-fname
+                msg_text = initial_or_empty_message
+              ).
             ENDIF.
-          ELSE.
-            IF <rule>-regex IS NOT INITIAL AND ( <field> IS NOT INITIAL AND ( CONV string( <field> ) <> '' ) ) .
-              IF NOT contains( val = <field> regex = <rule>-regex ).
-                set_result( row = data_row fname = <rule>-fname msg_text = <rule>-regex_msg ).
-              ENDIF.
+          ELSEIF <rule>-regex IS NOT INITIAL AND ( <field> IS NOT INITIAL AND ( CONV string( <field> ) <> '' ) ).
+            IF NOT contains( val = <field> regex = <rule>-regex ).
+              set_result(
+                row      = data_row
+                fname    = <rule>-fname
+                msg_text = <rule>-regex_msg
+              ).
             ENDIF.
           ENDIF.
 
@@ -137,7 +155,8 @@ CLASS zcl_adata_validator IMPLEMENTATION.
   METHOD constructor.
 
     check_config = VALUE #(
-      ( type = c_type_date      class = 'ZCL_ADV_DATE_CHECK'  message = 'Invalid value for field "&1". Date format should be YYYYMMDD.' )
+      ( type = c_type_date      class = 'ZCL_ADV_DATE_CHECK'
+        message = 'Invalid value for field "&1". Date format should be YYYYMMDD.' )
       ( type = c_type_email     class = 'ZCL_ADV_EMAIL_CHECK' )
       ( type = c_type_time      class = 'ZCL_ADV_TIME_CHECK' )
       ( type = c_type_int4      class = 'ZCL_ADV_INT4_CHECK' )
@@ -154,6 +173,71 @@ CLASS zcl_adata_validator IMPLEMENTATION.
     default_message          = |Invalid value for field "&1", type "&2" |.
     class_error_message      = |Class &1 is invalid, check your configuration and code. |.
 
+  ENDMETHOD.
+
+
+  METHOD extend_check.
+
+    DATA: adv_check TYPE REF TO zif_adv_check.
+
+    DATA: ptab TYPE abap_parmbind_tab,
+          etab TYPE abap_excpbind_tab.
+
+    DATA: valid TYPE abap_bool.
+
+    DATA(method_name)  = |{ zif_adv_check=>c_interface_name }~{ zif_adv_check=>c_method_name }|.
+
+
+    LOOP AT data ASSIGNING FIELD-SYMBOL(<data>).
+
+      DATA(data_row) = sy-tabix.
+
+      LOOP AT rules ASSIGNING FIELD-SYMBOL(<rule>) WHERE initial_or_empty = abap_false.
+
+        ASSIGN COMPONENT <rule>-fname OF STRUCTURE <data> TO FIELD-SYMBOL(<field>).
+        IF sy-subrc = 0.
+          IF <field> IS NOT INITIAL AND ( CONV string( <field> ) <> '' ).
+
+            READ TABLE check_config WITH KEY type = <rule>-user_type ASSIGNING FIELD-SYMBOL(<config>).
+            IF sy-subrc = 0.
+              IF <config>-class IS NOT INITIAL.
+
+                ptab = VALUE #( (
+                   name  = 'DATA'
+                   kind  = cl_abap_objectdescr=>exporting
+                   value = REF #( <field> ) )
+                 ( name  = 'VALID'
+                   kind  = cl_abap_objectdescr=>returning
+                   value = REF #( valid ) )
+               ).
+
+                TRY.
+                    CALL METHOD (<config>-class)=>(method_name) PARAMETER-TABLE ptab.
+                    IF valid = abap_false.
+                      set_result(
+                          row       = data_row
+                          fname     = <rule>-fname
+                          msg_text  = <config>-message
+                          type_name = <rule>-user_type ).
+                    ENDIF.
+                  CATCH: cx_sy_dyn_call_excp_not_found,
+                         cx_sy_dyn_call_illegal_class,
+                         cx_sy_dyn_call_illegal_method,
+                         cx_sy_dyn_call_illegal_type,
+                         cx_sy_dyn_call_param_missing,
+                         cx_sy_dyn_call_param_not_found.
+                    zcx_adv_exception=>raise( |Error when call { <config>-class }=>{ method_name }, check your config and code. | ).
+                ENDTRY.
+
+              ENDIF.
+            ENDIF.
+
+          ENDIF.
+        ENDIF.
+
+      ENDLOOP.
+
+    ENDLOOP.
   ENDMETHOD.
 
 
@@ -203,27 +287,6 @@ CLASS zcl_adata_validator IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD validate.
-
-    CLEAR: results_temp.
-
-    IF is_flat_table( data ) = abap_false.
-      zcx_adv_exception=>raise( |Only support table with flat structure (or structure with string type).| ).
-    ENDIF.
-
-    IF data IS INITIAL.
-      RETURN.
-    ENDIF.
-
-    basic_check( rules = rules data = data ).
-
-    extend_check( rules = rules data = data ).
-
-    results = results_temp.
-
-  ENDMETHOD.
-
-
   METHOD set_result.
 
     DATA(sub_msg_text) = COND #( WHEN msg_text IS NOT INITIAL THEN msg_text
@@ -252,68 +315,24 @@ CLASS zcl_adata_validator IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD extend_check.
 
-    DATA: adv_check TYPE REF TO zif_adv_check.
+  METHOD validate.
 
-    DATA: ptab TYPE abap_parmbind_tab,
-          etab TYPE abap_excpbind_tab.
+    CLEAR: results_temp.
 
-    DATA: valid TYPE abap_bool.
+    IF is_flat_table( data ) = abap_false.
+      zcx_adv_exception=>raise( |Only support table with flat structure (or structure with string type).| ).
+    ENDIF.
 
-    TRY.
-        DATA(classes_list) = cl_sic_configuration=>get_classes_for_interface( zif_adv_check=>c_interface_name ).
-        DATA(method_name)  = |{ zif_adv_check=>c_interface_name }~{ zif_adv_check=>c_method_name }|.
-      CATCH cx_class_not_existent.
-    ENDTRY.
+    IF data IS INITIAL.
+      RETURN.
+    ENDIF.
 
-    LOOP AT data ASSIGNING FIELD-SYMBOL(<data>).
+    basic_check( rules = rules data = data ).
 
-      DATA(data_row) = sy-tabix.
+    extend_check( rules = rules data = data ).
 
-      LOOP AT rules ASSIGNING FIELD-SYMBOL(<rule>) WHERE initial_or_empty = abap_false.
+    results = results_temp.
 
-        ASSIGN COMPONENT <rule>-fname OF STRUCTURE <data> TO FIELD-SYMBOL(<field>).
-        IF sy-subrc = 0.
-          IF <field> IS NOT INITIAL AND ( CONV string( <field> ) <> '' ).
-
-            READ TABLE check_config WITH KEY type = <rule>-user_type ASSIGNING FIELD-SYMBOL(<config>).
-            IF sy-subrc = 0.
-              IF <config>-class IS NOT INITIAL.
-                IF line_exists( classes_list[ clsname = <config>-class ] ).
-                  ptab = VALUE #( (
-                     name  = 'DATA'
-                     kind  = cl_abap_objectdescr=>exporting
-                     value = REF #( <field> ) )
-                   ( name  = 'VALID'
-                     kind  = cl_abap_objectdescr=>returning
-                     value = REF #( valid ) )
-                 ).
-                  TRY.
-                      CALL METHOD (<config>-class)=>(method_name) PARAMETER-TABLE ptab.
-                      IF valid = abap_false.
-                        set_result( row = data_row fname = <rule>-fname msg_text = <config>-message type_name = <rule>-user_type ).
-                      ENDIF.
-                    CATCH: cx_sy_dyn_call_excp_not_found,
-                           cx_sy_dyn_call_illegal_class,
-                           cx_sy_dyn_call_illegal_method,
-                           cx_sy_dyn_call_illegal_type,
-                           cx_sy_dyn_call_param_missing,
-                           cx_sy_dyn_call_param_not_found.
-                      set_result( row = data_row fname = <config>-class msg_text = class_error_message ).
-                  ENDTRY.
-                ELSE.
-                  zcx_adv_exception=>raise( |Class { <config>-class } not found, check your config. | ).
-                ENDIF.
-              ENDIF.
-            ENDIF.
-
-          ENDIF.
-        ENDIF.
-
-      ENDLOOP.
-
-    ENDLOOP.
   ENDMETHOD.
-
 ENDCLASS.
