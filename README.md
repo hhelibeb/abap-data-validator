@@ -21,6 +21,7 @@ ABAP Data Validator supports validations for types below (updating),
 - [x] JSON.
 - [x] HEX.
 - [x] IMEI.
+- [x] GUID.
 
 ## Usage
 
