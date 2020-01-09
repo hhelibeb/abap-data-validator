@@ -43,6 +43,8 @@ CLASS zcl_adata_validator DEFINITION
     CONSTANTS: c_type_json TYPE ty_spec_type VALUE 'JSON'.
     CONSTANTS: c_type_imei TYPE ty_spec_type VALUE 'IMEI'.
     CONSTANTS: c_type_guid TYPE ty_spec_type VALUE 'GUID'.
+    CONSTANTS: c_type_base64 TYPE ty_spec_type VALUE 'BASE64'.
+    CONSTANTS: c_type_html TYPE ty_spec_type VALUE 'HTML'.
 
 
     METHODS: "! <p class="shorttext synchronized" lang="en"></p>
@@ -168,6 +170,8 @@ CLASS zcl_adata_validator IMPLEMENTATION.
       ( type = c_type_json      class = 'ZCL_ADV_JSON_CHECK' )
       ( type = c_type_imei      class = 'ZCL_ADV_IMEI_CHECK' )
       ( type = c_type_guid      class = 'ZCL_ADV_GUID_CHECK' )
+      ( type = c_type_base64    class = 'ZCL_ADV_BASE64_CHECK' )
+      ( type = c_type_html      class = 'ZCL_ADV_HTML_CHECK' )
     ).
 
     required_message         = |&1 is required. |.

@@ -19,7 +19,7 @@ CLASS zcl_adv_json_check IMPLEMENTATION.
     valid = abap_false.
 
     DATA(string_json) = CONV string( data ).
-    IF  string_json IS INITIAL.
+    IF string_json IS INITIAL.
       RETURN.
     ENDIF.
     DATA(json_data) = /ui2/cl_json=>generate( json = string_json ).
