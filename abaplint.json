@@ -122,9 +122,6 @@
         },
         "form_no_dash": true,
         "check_abstract": true,
-        "no_public_attributes": {
-            "allowReadOnly": true
-        },
         "abapdoc": true,
         "prefer_returning_to_exporting": true,
         "keep_single_parameter_on_one_line": {
