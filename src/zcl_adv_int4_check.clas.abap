@@ -53,7 +53,7 @@ CLASS zcl_adv_int4_check IMPLEMENTATION.
       number = number(len).
     ENDIF.
 
-    IF contains( val = number regex = '[^0]' ). " always valid when a string only has zero
+    IF contains( val = number regex = '[^0]' ). " always valid when a string only contains zero
       SHIFT number LEFT DELETING LEADING '0'.
     ENDIF.
 
