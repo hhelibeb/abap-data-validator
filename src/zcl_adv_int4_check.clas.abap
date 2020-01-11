@@ -25,7 +25,11 @@ CLASS zcl_adv_int4_check IMPLEMENTATION.
     valid = abap_false.
 
     DATA(string_number) = CONV string( data ).
-
+    
+    IF string_number IS INITIAL.
+      RETURN.
+    ENDIF.
+    
     remove_mess_char( CHANGING number = string_number ).
 
     IF NOT contains( val = string_number regex = regex_string ).
