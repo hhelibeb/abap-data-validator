@@ -224,7 +224,7 @@ CLASS zcl_adata_validator IMPLEMENTATION.
 
             READ TABLE check_config WITH KEY type = <rule>-user_type ASSIGNING FIELD-SYMBOL(<config>).
             IF sy-subrc = 0.
-              IF <config>-class IS NOT INITIAL AND line_exists( classes_list[ clsname = <config>-class ] )..
+              IF <config>-class IS NOT INITIAL AND line_exists( classes_list[ clsname = <config>-class ] ).
 
                 ptab = VALUE #( (
                    name  = 'DATA'
