@@ -244,13 +244,13 @@ CLASS zcl_adata_validator IMPLEMENTATION.
                           msg_text  = <config>-message
                           type_name = <rule>-user_type ).
                     ENDIF.
-                  CATCH: cx_sy_dyn_call_excp_not_found,
-                         cx_sy_dyn_call_illegal_class,
-                         cx_sy_dyn_call_illegal_method,
-                         cx_sy_dyn_call_illegal_type,
-                         cx_sy_dyn_call_param_missing,
-                         cx_sy_dyn_call_param_not_found,
-                         cx_sy_dyn_call_parameter_error,
+                  CATCH: cx_sy_dyn_call_excp_not_found
+                         cx_sy_dyn_call_illegal_class
+                         cx_sy_dyn_call_illegal_method
+                         cx_sy_dyn_call_illegal_type
+                         cx_sy_dyn_call_param_missing
+                         cx_sy_dyn_call_param_not_found
+                         cx_sy_dyn_call_parameter_error
                          cx_sy_dyn_call_error.
                     zcx_adv_exception=>raise( |Error when call { <config>-class }=>{ method_name }, check your config and code. | ).
                 ENDTRY.
