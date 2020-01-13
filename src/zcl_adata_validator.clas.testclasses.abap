@@ -22,6 +22,7 @@ CLASS ltc_validation_check DEFINITION FINAL FOR TESTING DURATION SHORT RISK LEVE
     METHODS: error_input FOR TESTING.
     METHODS: no_error_input FOR TESTING.
     METHODS: class_check FOR TESTING.
+    METHODS: class_not_exists FOR TESTING.
 
 ENDCLASS.
 
@@ -265,13 +266,10 @@ CLASS ltc_validation_check IMPLEMENTATION.
       ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_imei      )
     ).
 
-    cases = VALUE #(
-        ( field1 = 'A$$' )
-    ).
+    cases = VALUE #( ( field1 = 'A$$' ) ).
 
-    DATA(adata_validation) = NEW zcl_adata_validator( ).
     TRY.
-        DATA(result) = adata_validation->validate(
+        DATA(result) = NEW zcl_adata_validator( )->validate(
              rules   = rules
              data    = cases
          ).
@@ -279,6 +277,66 @@ CLASS ltc_validation_check IMPLEMENTATION.
         DATA(msg) = ex->get_text( ).
         cl_abap_unit_assert=>fail( msg = msg ).
     ENDTRY.
+
+  ENDMETHOD.
+
+  METHOD class_not_exists.
+
+    DATA: rules TYPE zcl_adata_validator=>ty_rules_t.
+
+    DATA: cases TYPE ty_case_t.
+
+    rules = VALUE #(
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_date      )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_email     )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_time      )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_int4      )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_regex     )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_timestamp )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_url       )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_hex       )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_json      )
+      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_imei      )
+    ).
+
+    cases = VALUE #(
+      ( field1 = 'A$$' )
+      ( field2 = 'A$$' )
+    ).
+
+    DATA: check_class_config TYPE zcl_adata_validator=>ty_check_config_t.
+
+    check_class_config = VALUE #( ( type = zcl_adata_validator=>c_type_date  class = 'ZCL_ADATA_VALIDATOR' ) ).
+
+    TRY.
+        DATA(result) = NEW zcl_adata_validator( check_class_conifg = check_class_config )->validate(
+             rules   = rules
+             data    = cases
+         ).
+      CATCH zcx_adv_exception INTO DATA(ex).
+        DATA(msg) = ex->get_text( ).
+    ENDTRY.
+
+    IF ex IS NOT BOUND.
+      cl_abap_unit_assert=>fail( msg = 'exception expected for ZCL_ADATA_VALIDATOR' ).
+    ENDIF.
+
+
+    check_class_config = VALUE #( ( type = zcl_adata_validator=>c_type_email class = 'ZCL_ADV_XXX_CHECK' ) ).
+
+    TRY.
+        DATA(result2) = NEW zcl_adata_validator( check_class_conifg = check_class_config )->validate(
+             rules   = rules
+             data    = cases
+         ).
+      CATCH zcx_adv_exception INTO DATA(ex2).
+        DATA(msg2) = ex2->get_text( ).
+    ENDTRY.
+
+    IF ex2 IS NOT BOUND.
+      cl_abap_unit_assert=>fail( msg = 'exception expected for ZCL_ADV_XXX_CHECK' ).
+    ENDIF.
+
 
   ENDMETHOD.
 

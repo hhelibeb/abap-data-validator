@@ -23,6 +23,20 @@ CLASS zcl_adata_validator DEFINITION
            END OF ty_msg.
     TYPES: ty_msg_t TYPE STANDARD TABLE OF ty_msg WITH EMPTY KEY.
 
+    TYPES: BEGIN OF ty_check_config,
+             type    TYPE ty_spec_type,
+             class   TYPE seoclsname,
+             message TYPE string,
+           END OF ty_check_config.
+    TYPES: ty_check_config_t TYPE HASHED TABLE OF ty_check_config WITH UNIQUE KEY type.
+
+    TYPES: BEGIN OF ty_default_msg,
+             required         TYPE string,
+             initial_or_empty TYPE string,
+             default          TYPE string,
+             class_error      TYPE string,
+           END OF ty_default_msg.
+
     TYPES: BEGIN OF ty_result,
              row     TYPE int4,
              fname   TYPE name_komp,
@@ -47,18 +61,22 @@ CLASS zcl_adata_validator DEFINITION
     CONSTANTS: c_type_html TYPE ty_spec_type VALUE 'HTML'.
 
 
-    METHODS: "! <p class="shorttext synchronized" lang="en"></p>
-      "! <p>initialize some configurations, redefine it on demand</p>
-      constructor.
+    METHODS:
+      "! <p class="shorttext synchronized" lang="en"></p>
+      "! initialize some configurations, pass your own configurations on demand
+      "! @parameter check_class_conifg | check classes & type names
+      "! @parameter default_message    | default message for some base checks
+      constructor IMPORTING check_class_conifg TYPE ty_check_config_t OPTIONAL
+                            default_message    TYPE ty_default_msg OPTIONAL.
 
     METHODS: "! <p class="shorttext synchronized" lang="en"></p>
       "! <p>Validation method for internal table</p>
-      "! @parameter rules | rules for validation <p class="shorttext synchronized" lang="en"></p>
-      "! @parameter data | internal table to be validated <p class="shorttext synchronized" lang="en"></p>
-      "! @parameter results | if all of data is valid, result will be empty <p class="shorttext synchronized" lang="en"></p>
-      "! @raising zcx_adv_exception | <p class="shorttext synchronized" lang="en"></p>
-      validate IMPORTING rules          TYPE ty_rules_t
-                         data           TYPE ANY TABLE
+      "! @parameter rules            | rules for validation
+      "! @parameter data             | internal table to be validated
+      "! @parameter results          | if all of data is valid, result will be empty
+      "! @raising zcx_adv_exception  | type of importing error/check class error
+      validate IMPORTING !rules         TYPE ty_rules_t
+                         !data          TYPE ANY TABLE
                RETURNING VALUE(results) TYPE ty_result_t
                RAISING   zcx_adv_exception.
 
@@ -66,40 +84,28 @@ CLASS zcl_adata_validator DEFINITION
 
   PRIVATE SECTION.
 
-    TYPES: ty_message_text TYPE string.
-
-    TYPES: BEGIN OF ty_check_config,
-             type    TYPE ty_spec_type,
-             class   TYPE seoclsname,
-             message TYPE ty_message_text,
-           END OF ty_check_config.
-    TYPES: ty_check_config_t TYPE HASHED TABLE OF ty_check_config WITH UNIQUE KEY type.
-
     DATA: check_config TYPE ty_check_config_t.
 
-    DATA: required_message TYPE ty_message_text.
-    DATA: initial_or_empty_message TYPE ty_message_text.
-    DATA: default_message TYPE ty_message_text.
-    DATA: class_error_message TYPE ty_message_text.
+    DATA: default_msg TYPE ty_default_msg.
 
     DATA: results_temp TYPE ty_result_t.
 
-    METHODS: basic_check IMPORTING rules TYPE ty_rules_t
-                                   data  TYPE STANDARD TABLE
+    METHODS: basic_check IMPORTING !rules TYPE ty_rules_t
+                                   !data  TYPE STANDARD TABLE
                          RAISING   zcx_adv_exception.
 
-    METHODS: extend_check IMPORTING rules TYPE ty_rules_t
-                                    data  TYPE STANDARD TABLE
+    METHODS: extend_check IMPORTING !rules TYPE ty_rules_t
+                                    !data  TYPE STANDARD TABLE
                           RAISING   zcx_adv_exception.
 
-    METHODS: is_flat_table IMPORTING data        TYPE ANY TABLE
+    METHODS: is_flat_table IMPORTING !data       TYPE ANY TABLE
                            RETURNING VALUE(flat) TYPE abap_bool
                            RAISING   zcx_adv_exception.
 
-    METHODS: set_result IMPORTING row       TYPE int4
-                                  fname     TYPE name_komp
-                                  type_name TYPE ty_spec_type OPTIONAL
-                                  msg_text  TYPE ty_message_text.
+    METHODS: set_result IMPORTING !row       TYPE int4
+                                  !fname     TYPE name_komp
+                                  !type_name TYPE ty_spec_type OPTIONAL
+                                  !msg_text  TYPE string.
 ENDCLASS.
 
 
@@ -123,7 +129,7 @@ CLASS zcl_adata_validator IMPLEMENTATION.
               set_result(
                 row      = data_row
                 fname    = <rule>-fname
-                msg_text = required_message
+                msg_text = default_msg-required
               ).
             ENDIF.
           ENDIF.
@@ -133,7 +139,7 @@ CLASS zcl_adata_validator IMPLEMENTATION.
               set_result(
                 row      = data_row
                 fname    = <rule>-fname
-                msg_text = initial_or_empty_message
+                msg_text = default_msg-initial_or_empty
               ).
             ENDIF.
           ELSEIF <rule>-regex IS NOT INITIAL AND ( <field> IS NOT INITIAL AND ( CONV string( <field> ) <> '' ) ).
@@ -157,28 +163,35 @@ CLASS zcl_adata_validator IMPLEMENTATION.
 
   METHOD constructor.
 
-    check_config = VALUE #(
-      ( type = c_type_date      class = 'ZCL_ADV_DATE_CHECK'
-        message = 'Invalid value for field "&1". Date format should be YYYYMMDD.' )
-      ( type = c_type_email     class = 'ZCL_ADV_EMAIL_CHECK' )
-      ( type = c_type_time      class = 'ZCL_ADV_TIME_CHECK' )
-      ( type = c_type_int4      class = 'ZCL_ADV_INT4_CHECK' )
-      ( type = c_type_regex     class = 'ZCL_ADV_REGEX_CHECK' )
-      ( type = c_type_timestamp class = 'ZCL_ADV_TIMESTAMP_CHECK' )
-      ( type = c_type_url       class = 'ZCL_ADV_URL_CHECK' )
-      ( type = c_type_hex       class = 'ZCL_ADV_HEX_CHECK' )
-      ( type = c_type_json      class = 'ZCL_ADV_JSON_CHECK' )
-      ( type = c_type_imei      class = 'ZCL_ADV_IMEI_CHECK' )
-      ( type = c_type_guid      class = 'ZCL_ADV_GUID_CHECK' )
-      ( type = c_type_base64    class = 'ZCL_ADV_BASE64_CHECK' )
-      ( type = c_type_html      class = 'ZCL_ADV_HTML_CHECK' )
-    ).
+    IF check_class_conifg IS NOT INITIAL.
+      check_config = check_class_conifg.
+    ELSE.
+      check_config = VALUE #(
+        ( type = c_type_date      class = 'ZCL_ADV_DATE_CHECK'
+          message = 'Invalid value for field "&1". Date format should be YYYYMMDD.' )
+        ( type = c_type_email     class = 'ZCL_ADV_EMAIL_CHECK' )
+        ( type = c_type_time      class = 'ZCL_ADV_TIME_CHECK' )
+        ( type = c_type_int4      class = 'ZCL_ADV_INT4_CHECK' )
+        ( type = c_type_regex     class = 'ZCL_ADV_REGEX_CHECK' )
+        ( type = c_type_timestamp class = 'ZCL_ADV_TIMESTAMP_CHECK' )
+        ( type = c_type_url       class = 'ZCL_ADV_URL_CHECK' )
+        ( type = c_type_hex       class = 'ZCL_ADV_HEX_CHECK' )
+        ( type = c_type_json      class = 'ZCL_ADV_JSON_CHECK' )
+        ( type = c_type_imei      class = 'ZCL_ADV_IMEI_CHECK' )
+        ( type = c_type_guid      class = 'ZCL_ADV_GUID_CHECK' )
+        ( type = c_type_base64    class = 'ZCL_ADV_BASE64_CHECK' )
+        ( type = c_type_html      class = 'ZCL_ADV_HTML_CHECK' )
+      ).
+    ENDIF.
 
-    required_message         = |&1 is required. |.
-    initial_or_empty_message = |&1 should be empty. |.
-    default_message          = |Invalid value for field "&1", type "&2" |.
-    class_error_message      = |Class &1 is invalid, check your configuration and code. |.
-
+    IF default_message IS NOT INITIAL.
+      default_msg = default_message.
+    ELSE.
+      default_msg-required         = |&1 is required. |.
+      default_msg-initial_or_empty = |&1 should be empty. |.
+      default_msg-default          = |Invalid value for field "&1", type "&2" |.
+      default_msg-class_error      = |Class &1 is invalid, check your configuration and code. |.
+    ENDIF.
   ENDMETHOD.
 
 
@@ -190,6 +203,11 @@ CLASS zcl_adata_validator IMPLEMENTATION.
           etab TYPE abap_excpbind_tab.
 
     DATA: valid TYPE abap_bool.
+
+    TRY.
+        DATA(classes_list) = cl_sic_configuration=>get_classes_for_interface( zif_adv_check=>c_interface_name ).
+      CATCH cx_class_not_existent.
+    ENDTRY.
 
     DATA(method_name)  = |{ zif_adv_check=>c_interface_name }~{ zif_adv_check=>c_method_name }|.
 
@@ -206,7 +224,7 @@ CLASS zcl_adata_validator IMPLEMENTATION.
 
             READ TABLE check_config WITH KEY type = <rule>-user_type ASSIGNING FIELD-SYMBOL(<config>).
             IF sy-subrc = 0.
-              IF <config>-class IS NOT INITIAL.
+              IF <config>-class IS NOT INITIAL AND line_exists( classes_list[ clsname = <config>-class ] ).
 
                 ptab = VALUE #( (
                    name  = 'DATA'
@@ -231,10 +249,13 @@ CLASS zcl_adata_validator IMPLEMENTATION.
                          cx_sy_dyn_call_illegal_method,
                          cx_sy_dyn_call_illegal_type,
                          cx_sy_dyn_call_param_missing,
-                         cx_sy_dyn_call_param_not_found.
+                         cx_sy_dyn_call_param_not_found,
+                         cx_sy_dyn_call_parameter_error,
+                         cx_sy_dyn_call_error.
                     zcx_adv_exception=>raise( |Error when call { <config>-class }=>{ method_name }, check your config and code. | ).
                 ENDTRY.
-
+              ELSE.
+                zcx_adv_exception=>raise( |Class { <config>-class }not exists. | ).
               ENDIF.
             ENDIF.
 
@@ -266,16 +287,16 @@ CLASS zcl_adata_validator IMPLEMENTATION.
     DATA: black_list TYPE HASHED TABLE OF ty_black_list WITH UNIQUE KEY kind.
 
     black_list = VALUE #(
-        ( kind = cl_abap_datadescr=>typekind_any   )
-        ( kind = cl_abap_datadescr=>typekind_class )
-        ( kind = cl_abap_datadescr=>typekind_data  )
-        ( kind = cl_abap_datadescr=>typekind_dref  )
-        ( kind = cl_abap_datadescr=>typekind_intf  )
-        ( kind = cl_abap_datadescr=>typekind_iref  )
-        ( kind = cl_abap_datadescr=>typekind_oref  )
+        ( kind = cl_abap_datadescr=>typekind_any     )
+        ( kind = cl_abap_datadescr=>typekind_class   )
+        ( kind = cl_abap_datadescr=>typekind_data    )
+        ( kind = cl_abap_datadescr=>typekind_dref    )
+        ( kind = cl_abap_datadescr=>typekind_intf    )
+        ( kind = cl_abap_datadescr=>typekind_iref    )
+        ( kind = cl_abap_datadescr=>typekind_oref    )
         ( kind = cl_abap_datadescr=>typekind_struct2 )
-        ( kind = cl_abap_datadescr=>typekind_table )
-        ( kind = cl_abap_datadescr=>typekind_bref  )
+        ( kind = cl_abap_datadescr=>typekind_table   )
+        ( kind = cl_abap_datadescr=>typekind_bref    )
     ).
 
     LOOP AT line_descr->get_components( ) ASSIGNING FIELD-SYMBOL(<component>).
@@ -296,7 +317,7 @@ CLASS zcl_adata_validator IMPLEMENTATION.
   METHOD set_result.
 
     DATA(sub_msg_text) = COND #( WHEN msg_text IS NOT INITIAL THEN msg_text
-                                 ELSE                              default_message ).
+                                 ELSE                              default_msg-default ).
 
     REPLACE ALL OCCURRENCES OF '&1' IN sub_msg_text WITH fname.
     IF type_name IS NOT INITIAL.
