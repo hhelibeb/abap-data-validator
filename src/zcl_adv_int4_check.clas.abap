@@ -11,7 +11,7 @@ CLASS zcl_adv_int4_check DEFINITION
     CLASS-METHODS: "! <p class="shorttext synchronized" lang="en"></p>
       "! remove potential leading zero
       "! @parameter number | <p class="shorttext synchronized" lang="en"></p>
-      remove_mess_char CHANGING number TYPE string.
+      remove_mess_char CHANGING !number TYPE string.
 ENDCLASS.
 
 
@@ -25,11 +25,11 @@ CLASS zcl_adv_int4_check IMPLEMENTATION.
     valid = abap_false.
 
     DATA(string_number) = CONV string( data ).
-    
+
     IF string_number IS INITIAL.
       RETURN.
     ENDIF.
-    
+
     remove_mess_char( CHANGING number = string_number ).
 
     IF NOT contains( val = string_number regex = regex_string ).

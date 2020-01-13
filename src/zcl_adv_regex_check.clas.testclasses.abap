@@ -22,8 +22,9 @@ CLASS ltc_regex_check IMPLEMENTATION.
     DATA: cases TYPE ty_case_t.
 
     cases = VALUE #(
-        ( data = '['  valid = abap_false )
-        ( data = '[0-9]++'   valid = abap_false )
+        ( data = '['       valid = abap_false )
+        ( data = ''        valid = abap_false )
+        ( data = '[0-9]++' valid = abap_false )
     ).
 
     LOOP AT cases ASSIGNING FIELD-SYMBOL(<case>).
