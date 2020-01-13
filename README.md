@@ -99,7 +99,23 @@ METHOD constructor.
 ENDMETHOD.
  ```
 ### Configuration 
-The configuration is hard coded in `zcl_adata_validator`'s constructor, but you can redefine the constructor to retrieve configuration from database tables or other source. It allows you to change the function without modifying the existed program.
+The configuration is hard coded in `zcl_adata_validator`'s constructor. You can also pass you own configuration into the constructor. It allows you to change the function without modifying the existed program.
+
+```abap
+DATA: check_class_config TYPE zcl_adata_validator=>ty_check_config_t.
+
+SELECT * FROM my_config_table INTO TABLE @check_class_config.
+
+TRY.
+    DATA(result) = NEW zcl_adata_validator( check_class_conifg = check_class_config )->validate(
+        rules   = rules
+        data    = cases
+    ).
+CATCH zcx_adv_exception INTO DATA(ex).
+    DATA(msg) = ex->get_text( ).
+ENDTRY.
+
+```
 
 ## Requirment
 ABAP Version: 740 sp08 or higher
