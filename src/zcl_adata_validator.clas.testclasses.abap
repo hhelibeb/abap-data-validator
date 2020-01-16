@@ -370,7 +370,6 @@ CLASS ltc_validation_check IMPLEMENTATION.
                  '667F98FDC91D46CF90629A879F18EA0D' &&
                  '667F98FDC91D46CF90629A879F18EA0D' &&
                  '667F98FDC91D46CF90629A879F18EA0D'
-
                                                     element = 'RAW128'                       expect = abap_true  )
         ( data = '20200228'                         element = 'DATUM'                        expect = abap_true  )
         ( data = '235959'                           element = 'UZEIT'                        expect = abap_true  )
