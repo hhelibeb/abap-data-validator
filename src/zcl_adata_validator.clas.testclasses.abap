@@ -359,7 +359,9 @@ CLASS ltc_validation_check IMPLEMENTATION.
         ( data = 'XX'                               element = 'UZEIT'                        expect = abap_false )
         ( data = '20190101000000X'                  element = 'TIMESTAMP'                    expect = abap_false )
         ( data = '20190101000000X'                  element = 'MY CTEST'                     expect = abap_false )
-        ( data = ''                                 element = ''                     expect = abap_false )
+        ( data = 'XX'                               element = 'ANZMS'                        expect = abap_false )
+        ( data = '1000.00'                          element = 'ANZMS'                        expect = abap_false )
+        ( data = ''                                 element = ''                             expect = abap_false )
         ( data = '667F98FDC91D46CF90629A879F18EA0D' element = 'GUID'                         expect = abap_true  )
         ( data = '2147483647'                       element = 'INT4'                         expect = abap_true  )
         ( data = '667F98FDC91D46CF90629A879F18EA0D' &&
@@ -375,13 +377,17 @@ CLASS ltc_validation_check IMPLEMENTATION.
         ( data = '235959'                           element = 'UZEIT'                        expect = abap_true  )
         ( data = '20190101000000'                   element = 'TIMESTAMP'                    expect = abap_true  )
         ( data = '20190101000000'                   element = 'LXE_SNO_DE_TIME_LAST_CHANGED' expect = abap_true  )
+        ( data = '33'                               element = 'ANZMS'                        expect = abap_true  )
+        ( data = '999.99-'                          element = 'ANZMS'                        expect = abap_true  )
+        ( data = '+999.99'                          element = 'ANZMS'                        expect = abap_true  )
     ).
 
+    DATA(validator) = NEW zcl_adata_validator( ).
 
     LOOP AT cases ASSIGNING FIELD-SYMBOL(<case>).
 
       TRY.
-          DATA(result) = NEW zcl_adata_validator( )->validate_by_element(
+          DATA(result) = validator->validate_by_element(
             data    = <case>-data
             element = <case>-element
           ).
