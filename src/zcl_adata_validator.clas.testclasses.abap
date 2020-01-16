@@ -23,6 +23,7 @@ CLASS ltc_validation_check DEFINITION FINAL FOR TESTING DURATION SHORT RISK LEVE
     METHODS: no_error_input FOR TESTING.
     METHODS: class_check FOR TESTING.
     METHODS: class_not_exists FOR TESTING.
+    METHODS: check_by_element FOR TESTING.
 
 ENDCLASS.
 
@@ -337,6 +338,66 @@ CLASS ltc_validation_check IMPLEMENTATION.
       cl_abap_unit_assert=>fail( msg = 'exception expected for ZCL_ADV_XXX_CHECK' ).
     ENDIF.
 
+
+  ENDMETHOD.
+
+  METHOD check_by_element.
+
+    TYPES: BEGIN OF ty_case_element,
+             data    TYPE string,
+             element TYPE rollname,
+             expect  TYPE abap_bool,
+           END OF ty_case_element.
+
+    DATA: cases TYPE STANDARD TABLE OF ty_case_element WITH EMPTY KEY.
+
+    cases = VALUE #(
+        ( data = 'XX'                               element = 'GUID'                         expect = abap_false )
+        ( data = 'ZZZ'                              element = 'INT4'                         expect = abap_false )
+        ( data = 'XX'                               element = 'RAW128'                       expect = abap_false )
+        ( data = 'XX'                               element = 'DATUM'                        expect = abap_false )
+        ( data = 'XX'                               element = 'UZEIT'                        expect = abap_false )
+        ( data = '20190101000000X'                  element = 'TIMESTAMP'                    expect = abap_false )
+        ( data = '20190101000000X'                  element = 'MY CTEST'                     expect = abap_false )
+        ( data = ''                                 element = ''                     expect = abap_false )
+        ( data = '667F98FDC91D46CF90629A879F18EA0D' element = 'GUID'                         expect = abap_true  )
+        ( data = '2147483647'                       element = 'INT4'                         expect = abap_true  )
+        ( data = '667F98FDC91D46CF90629A879F18EA0D' &&
+                 '667F98FDC91D46CF90629A879F18EA0D' &&
+                 '667F98FDC91D46CF90629A879F18EA0D' &&
+                 '667F98FDC91D46CF90629A879F18EA0D' &&
+                 '667F98FDC91D46CF90629A879F18EA0D' &&
+                 '667F98FDC91D46CF90629A879F18EA0D' &&
+                 '667F98FDC91D46CF90629A879F18EA0D' &&
+                 '667F98FDC91D46CF90629A879F18EA0D'
+
+                                                    element = 'RAW128'                       expect = abap_true  )
+        ( data = '20200228'                         element = 'DATUM'                        expect = abap_true  )
+        ( data = '235959'                           element = 'UZEIT'                        expect = abap_true  )
+        ( data = '20190101000000'                   element = 'TIMESTAMP'                    expect = abap_true  )
+        ( data = '20190101000000'                   element = 'LXE_SNO_DE_TIME_LAST_CHANGED' expect = abap_true  )
+    ).
+
+
+    LOOP AT cases ASSIGNING FIELD-SYMBOL(<case>).
+
+      TRY.
+          DATA(result) = NEW zcl_adata_validator( )->validate_by_element(
+            data    = <case>-data
+            element = <case>-element
+          ).
+        CATCH zcx_adv_exception INTO DATA(ex).
+          DATA(msg) = ex->get_text( ).
+          cl_abap_unit_assert=>fail( msg = 'unexpected exception for ZCL_ADV_XXX_CHECK' ).
+      ENDTRY.
+
+      cl_abap_unit_assert=>assert_equals(
+        act = result-valid
+        exp = <case>-expect
+        msg = |Result of data: '{ <case>-data }' type: '{ result-type }' should be '{ <case>-expect }'|
+      ).
+
+    ENDLOOP.
 
   ENDMETHOD.
 
