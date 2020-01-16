@@ -87,10 +87,10 @@ CLASS zcl_adata_validator DEFINITION
 
     METHODS: "! <p class="shorttext synchronized" lang="en"></p>
       "! validate data by the type of element
-      "! @parameter data    | <p class="shorttext synchronized" lang="en"></p>
-      "! @parameter element | <p class="shorttext synchronized" lang="en"></p>
-      validate_by_element IMPORTING data          TYPE simple
-                                    element       TYPE rollname
+      "! @parameter data    | data to be validated
+      "! @parameter element | reference data element
+      validate_by_element IMPORTING !data         TYPE simple
+                                    !element      TYPE rollname
                           RETURNING VALUE(result) TYPE ty_result_single
                           RAISING   zcx_adv_exception.
   PROTECTED SECTION.
@@ -440,7 +440,20 @@ CLASS zcl_adata_validator IMPLEMENTATION.
 
     IF result-type IS NOT INITIAL.
       result-valid = call_check_method( data = data class = VALUE #( check_config[ type = result-type ]-class OPTIONAL ) ).
+      RETURN.
     ENDIF.
 
+    IF descr->type_kind = cl_abap_elemdescr=>typekind_packed.
+      DATA: dref TYPE REF TO data.
+      CREATE DATA dref TYPE (element).
+      ASSIGN dref->* TO FIELD-SYMBOL(<packed>).
+      TRY.
+          <packed> = data.
+          result-valid = abap_true.
+        CATCH: cx_sy_conversion_overflow
+               cx_sy_conversion_no_number.
+      ENDTRY.
+      RETURN.
+    ENDIF.
   ENDMETHOD.
 ENDCLASS.
