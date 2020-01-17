@@ -15,6 +15,13 @@ CLASS ltc_validation_check DEFINITION FINAL FOR TESTING DURATION SHORT RISK LEVE
            END OF ty_case.
     TYPES: ty_case_t TYPE STANDARD TABLE OF ty_case.
 
+    TYPES: BEGIN OF ty_case_element,
+             data    TYPE string,
+             element TYPE rollname,
+             expect  TYPE abap_bool,
+           END OF ty_case_element.
+    TYPES: ty_case_element_t TYPE STANDARD TABLE OF ty_case_element WITH EMPTY KEY.
+
     METHODS: deep_input FOR TESTING.
     METHODS: empty_input FOR TESTING.
     METHODS: regex_input FOR TESTING.
@@ -24,6 +31,8 @@ CLASS ltc_validation_check DEFINITION FINAL FOR TESTING DURATION SHORT RISK LEVE
     METHODS: class_check FOR TESTING.
     METHODS: class_not_exists FOR TESTING.
     METHODS: check_by_element FOR TESTING.
+    METHODS: check_by_element_illegal_input FOR TESTING.
+    METHODS: check_table_by_elements FOR TESTING.
 
 ENDCLASS.
 
@@ -39,7 +48,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
         DATA(result) = adata_validation->validate(
              rules   = rules
              data    = deep_table
-         ).
+        ).
       CATCH zcx_adv_exception INTO DATA(ex).
         DATA(msg) = ex->get_text( ).
     ENDTRY.
@@ -64,7 +73,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
         DATA(result) = adata_validation->validate(
              rules   = rules
              data    = input
-         ).
+        ).
       CATCH zcx_adv_exception INTO DATA(ex).
         DATA(msg) = ex->get_text( ).
     ENDTRY.
@@ -99,7 +108,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
         DATA(result) = adata_validation->validate(
              rules   = rules
              data    = cases
-         ).
+        ).
       CATCH zcx_adv_exception INTO DATA(ex).
         DATA(msg) = ex->get_text( ).
     ENDTRY.
@@ -125,7 +134,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
 
     READ TABLE result WITH KEY row = 3 fname = 'FIELD2' error = abap_true TRANSPORTING NO FIELDS.
     IF sy-subrc <> 0.
-      cl_abap_unit_assert=>fail( msg = |Result of row '1' fname 'FIELD6' should be error. | ).
+      cl_abap_unit_assert=>fail( msg = |Result of row '3' fname 'FIELD6' should be error. | ).
     ENDIF.
 
   ENDMETHOD.
@@ -148,7 +157,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
         DATA(result) = adata_validation->validate(
              rules   = rules
              data    = cases
-         ).
+        ).
       CATCH zcx_adv_exception INTO DATA(ex).
         DATA(msg) = ex->get_text( ).
     ENDTRY.
@@ -220,7 +229,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
         DATA(result) = NEW zcl_adata_validator( )->validate(
              rules   = rules
              data    = cases
-         ).
+        ).
       CATCH zcx_adv_exception INTO DATA(ex).
         DATA(msg) = ex->get_text( ).
     ENDTRY.
@@ -273,7 +282,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
         DATA(result) = NEW zcl_adata_validator( )->validate(
              rules   = rules
              data    = cases
-         ).
+        ).
       CATCH zcx_adv_exception INTO DATA(ex).
         DATA(msg) = ex->get_text( ).
         cl_abap_unit_assert=>fail( msg = msg ).
@@ -329,7 +338,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
         DATA(result2) = NEW zcl_adata_validator( check_class_conifg = check_class_config )->validate(
              rules   = rules
              data    = cases
-         ).
+        ).
       CATCH zcx_adv_exception INTO DATA(ex2).
         DATA(msg2) = ex2->get_text( ).
     ENDTRY.
@@ -343,13 +352,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
 
   METHOD check_by_element.
 
-    TYPES: BEGIN OF ty_case_element,
-             data    TYPE string,
-             element TYPE rollname,
-             expect  TYPE abap_bool,
-           END OF ty_case_element.
-
-    DATA: cases TYPE STANDARD TABLE OF ty_case_element WITH EMPTY KEY.
+    DATA: cases TYPE ty_case_element_t.
 
     cases = VALUE #(
         ( data = 'XX'                               element = 'GUID'                         expect = abap_false )
@@ -358,10 +361,8 @@ CLASS ltc_validation_check IMPLEMENTATION.
         ( data = 'XX'                               element = 'DATUM'                        expect = abap_false )
         ( data = 'XX'                               element = 'UZEIT'                        expect = abap_false )
         ( data = '20190101000000X'                  element = 'TIMESTAMP'                    expect = abap_false )
-        ( data = '20190101000000X'                  element = 'MY CTEST'                     expect = abap_false )
         ( data = 'XX'                               element = 'ANZMS'                        expect = abap_false )
         ( data = '1000.00'                          element = 'ANZMS'                        expect = abap_false )
-        ( data = ''                                 element = ''                             expect = abap_false )
         ( data = '667F98FDC91D46CF90629A879F18EA0D' element = 'GUID'                         expect = abap_true  )
         ( data = '2147483647'                       element = 'INT4'                         expect = abap_true  )
         ( data = '667F98FDC91D46CF90629A879F18EA0D' &&
@@ -393,7 +394,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
           ).
         CATCH zcx_adv_exception INTO DATA(ex).
           DATA(msg) = ex->get_text( ).
-          cl_abap_unit_assert=>fail( msg = 'unexpected exception for ZCL_ADV_XXX_CHECK' ).
+          cl_abap_unit_assert=>fail( msg = 'unexpected exception' ).
       ENDTRY.
 
       cl_abap_unit_assert=>assert_equals(
@@ -401,6 +402,87 @@ CLASS ltc_validation_check IMPLEMENTATION.
         exp = <case>-expect
         msg = |Result of data: '{ <case>-data }' type: '{ result-type }' should be '{ <case>-expect }'|
       ).
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD check_table_by_elements.
+
+    DATA: rules TYPE zcl_adata_validator=>ty_rules_t.
+
+    DATA: cases TYPE ty_case_t.
+
+    cases = VALUE #(
+        ( field1 = '19000000'  )
+        ( field1 = '202011321' )
+        ( field1 = '20201121'  )
+    ).
+
+    rules = VALUE #(
+      ( fname = 'FIELD1' required = abap_true ref_element = 'DATUM' )
+    ).
+
+
+    DATA(validator) = NEW zcl_adata_validator( ).
+    TRY.
+        DATA(result) = validator->validate(
+             rules   = rules
+             data    = cases
+        ).
+      CATCH zcx_adv_exception INTO DATA(ex).
+        DATA(msg) = ex->get_text( ).
+    ENDTRY.
+
+    IF ex IS BOUND .
+      cl_abap_unit_assert=>fail( msg = 'No exception should be raised' ).
+    ENDIF.
+
+    READ TABLE result WITH KEY row = 1 fname = 'FIELD1' error = abap_true TRANSPORTING NO FIELDS.
+    IF sy-subrc <> 0.
+      cl_abap_unit_assert=>fail( msg = |Result of row '1' fname 'FIELD1' should be error. | ).
+    ENDIF.
+
+    READ TABLE result WITH KEY row = 2 fname = 'FIELD1' error = abap_true TRANSPORTING NO FIELDS.
+    IF sy-subrc <> 0.
+      cl_abap_unit_assert=>fail( msg = |Result of row '2' fname 'FIELD1' should not be error. | ).
+    ENDIF.
+
+    READ TABLE result WITH KEY row = 3 fname = 'FIELD1' error = abap_true TRANSPORTING NO FIELDS.
+    IF sy-subrc = 0.
+      cl_abap_unit_assert=>fail( msg = |Result of row '3' fname 'FIELD1' should be error. | ).
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD check_by_element_illegal_input.
+
+    DATA: cases TYPE ty_case_element_t.
+
+    cases = VALUE #(
+        ( data = 'XX'  element = ''        expect = abap_false )
+        ( data = 'ZZZ' element = 'MY TEST' expect = abap_false )
+        ( data = 'ZZZ' element = 'SFLIGHT' expect = abap_false )
+    ).
+
+    DATA(validator) = NEW zcl_adata_validator( ).
+
+    LOOP AT cases ASSIGNING FIELD-SYMBOL(<case>).
+
+      TRY.
+          DATA(result) = validator->validate_by_element(
+            data    = <case>-data
+            element = <case>-element
+          ).
+        CATCH zcx_adv_exception INTO DATA(ex).
+          DATA(msg) = ex->get_text( ).
+      ENDTRY.
+
+      IF ex IS NOT BOUND.
+        cl_abap_unit_assert=>fail( msg = 'exception should be thrown' ).
+      ENDIF.
+
+      FREE ex.
 
     ENDLOOP.
 
