@@ -33,6 +33,7 @@ CLASS ltc_validation_check DEFINITION FINAL FOR TESTING DURATION SHORT RISK LEVE
     METHODS: check_by_element FOR TESTING.
     METHODS: check_by_element_illegal_input FOR TESTING.
     METHODS: check_table_by_elements FOR TESTING.
+    METHODS: check_table_with_wrong_type FOR TESTING.
 
 ENDCLASS.
 
@@ -445,12 +446,12 @@ CLASS ltc_validation_check IMPLEMENTATION.
 
     READ TABLE result WITH KEY row = 2 fname = 'FIELD1' error = abap_true TRANSPORTING NO FIELDS.
     IF sy-subrc <> 0.
-      cl_abap_unit_assert=>fail( msg = |Result of row '2' fname 'FIELD1' should not be error. | ).
+      cl_abap_unit_assert=>fail( msg = |Result of row '2' fname 'FIELD1' should be error. | ).
     ENDIF.
 
     READ TABLE result WITH KEY row = 3 fname = 'FIELD1' error = abap_true TRANSPORTING NO FIELDS.
     IF sy-subrc = 0.
-      cl_abap_unit_assert=>fail( msg = |Result of row '3' fname 'FIELD1' should be error. | ).
+      cl_abap_unit_assert=>fail( msg = |Result of row '3' fname 'FIELD1' should not be error. | ).
     ENDIF.
 
   ENDMETHOD.
@@ -478,13 +479,58 @@ CLASS ltc_validation_check IMPLEMENTATION.
           DATA(msg) = ex->get_text( ).
       ENDTRY.
 
-      IF ex IS NOT BOUND.
-        cl_abap_unit_assert=>fail( msg = 'exception should be thrown' ).
+      IF ex IS BOUND.
+        cl_abap_unit_assert=>fail( msg = 'exception should never be thrown' ).
+        FREE ex.
       ENDIF.
 
-      FREE ex.
+      IF result-type <> zcl_adata_validator=>c_type_invalid.
+        cl_abap_unit_assert=>fail( msg = |result-type should be '{ zcl_adata_validator=>c_type_invalid }'| ).
+      ENDIF.
 
     ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD check_table_with_wrong_type.
+
+    DATA: rules TYPE zcl_adata_validator=>ty_rules_t.
+
+    DATA: cases TYPE ty_case_t.
+
+    cases = VALUE #(
+        ( field1 = '20200101'  )
+        ( field1 = '202011321' )
+    ).
+
+    rules = VALUE #(
+      ( fname = 'FIELD1' required = abap_true user_type = 'some type' )
+    ).
+
+
+    DATA(validator) = NEW zcl_adata_validator( ).
+    TRY.
+        DATA(result) = validator->validate(
+             rules   = rules
+             data    = cases
+        ).
+      CATCH zcx_adv_exception INTO DATA(ex).
+        DATA(msg) = ex->get_text( ).
+    ENDTRY.
+
+    IF ex IS BOUND .
+      cl_abap_unit_assert=>fail( msg = 'No exception should be raised' ).
+    ENDIF.
+
+    READ TABLE result WITH KEY row = 1 fname = 'FIELD1' type = zcl_adata_validator=>c_type_invalid error = abap_true TRANSPORTING NO FIELDS.
+    IF sy-subrc <> 0.
+      cl_abap_unit_assert=>fail( msg = |Result of row '1' fname 'FIELD1' should be error. | ).
+    ENDIF.
+
+    READ TABLE result WITH KEY row = 2 fname = 'FIELD1' type = zcl_adata_validator=>c_type_invalid error = abap_true TRANSPORTING NO FIELDS.
+    IF sy-subrc <> 0.
+      cl_abap_unit_assert=>fail( msg = |Result of row '2' fname 'FIELD1' should be error. | ).
+    ENDIF.
 
   ENDMETHOD.
 
