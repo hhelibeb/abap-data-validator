@@ -8,12 +8,13 @@ CLASS zcl_adata_validator DEFINITION
     TYPES: ty_spec_type TYPE string.
 
     TYPES: BEGIN OF ty_rule,
-             fname            TYPE name_komp, "field name
+             fname            TYPE name_komp,   "field name
              required         TYPE abap_bool,
              initial_or_empty TYPE abap_bool,
              user_type        TYPE ty_spec_type,
-             regex            TYPE string, "custom regular expression rule
-             regex_msg        TYPE string, "custom regular expression error message
+             regex            TYPE string,      "custom regular expression rule
+             regex_msg        TYPE string,      "custom regular expression error message
+             ref_element      TYPE rollname,    "check by the type of the reference data element
            END OF ty_rule.
 
     TYPES: ty_rules_t TYPE HASHED TABLE OF ty_rule WITH UNIQUE KEY fname user_type.
@@ -40,6 +41,7 @@ CLASS zcl_adata_validator DEFINITION
     TYPES: BEGIN OF ty_result,
              row     TYPE int4,
              fname   TYPE name_komp,
+             type    TYPE ty_spec_type,
              error   TYPE abap_bool,
              message TYPE ty_msg_t,
            END OF ty_result.
@@ -64,6 +66,7 @@ CLASS zcl_adata_validator DEFINITION
     CONSTANTS: c_type_guid TYPE ty_spec_type VALUE 'GUID'.
     CONSTANTS: c_type_base64 TYPE ty_spec_type VALUE 'BASE64'.
     CONSTANTS: c_type_html TYPE ty_spec_type VALUE 'HTML'.
+    CONSTANTS: c_type_packed TYPE ty_spec_type VALUE 'PACKED'.
 
 
     METHODS:
@@ -96,6 +99,14 @@ CLASS zcl_adata_validator DEFINITION
   PROTECTED SECTION.
 
   PRIVATE SECTION.
+
+    TYPES: BEGIN OF ty_rtts_buffer,
+             element TYPE rollname,
+             descr   TYPE REF TO cl_abap_elemdescr,
+           END OF ty_rtts_buffer.
+    TYPES: ty_rtts_buffer_t TYPE HASHED TABLE OF ty_rtts_buffer WITH UNIQUE KEY element.
+
+    DATA: elements_buffer TYPE ty_rtts_buffer_t.
 
     DATA: check_config TYPE ty_check_config_t.
 
@@ -264,8 +275,6 @@ CLASS zcl_adata_validator IMPLEMENTATION.
 
   METHOD extend_check.
 
-    DATA: valid TYPE abap_bool.
-
     LOOP AT data ASSIGNING FIELD-SYMBOL(<data>).
 
       DATA(data_row) = sy-tabix.
@@ -278,16 +287,28 @@ CLASS zcl_adata_validator IMPLEMENTATION.
 
             READ TABLE check_config WITH KEY type = <rule>-user_type ASSIGNING FIELD-SYMBOL(<config>).
             IF sy-subrc = 0 AND <config>-class IS NOT INITIAL.
-              valid = call_check_method( data = <field> class = <config>-class ).
+              DATA(valid) = call_check_method( data = <field> class = <config>-class ).
               IF valid = abap_false.
                 set_result(
                     row       = data_row
                     fname     = <rule>-fname
                     msg_text  = <config>-message
-                    type_name = <rule>-user_type ).
+                    type_name = <rule>-user_type
+                ).
               ENDIF.
             ENDIF.
 
+            IF <rule>-ref_element IS NOT INITIAL.
+              DATA(result) = validate_by_element( data = <field> element = <rule>-ref_element ).
+              IF result-type <> <rule>-user_type AND result-valid = abap_false.
+                set_result(
+                   row       = data_row
+                   fname     = <rule>-fname
+                   msg_text  = VALUE #( check_config[ type = result-type ]-message OPTIONAL )
+                   type_name = result-type
+               ).
+              ENDIF.
+            ENDIF.
           ENDIF.
         ENDIF.
 
@@ -393,6 +414,7 @@ CLASS zcl_adata_validator IMPLEMENTATION.
          row     = row
          fname   = fname
          error   = abap_true
+         type    = type_name
          message = VALUE #( ( text = sub_msg_text ) )
       ).
       INSERT result_temp INTO TABLE results_temp.
@@ -424,17 +446,35 @@ CLASS zcl_adata_validator IMPLEMENTATION.
 
   METHOD validate_by_element.
 
-    cl_abap_datadescr=>describe_by_name(
-      EXPORTING  p_name         = element
-      RECEIVING  p_descr_ref    = DATA(base_descr)
-      EXCEPTIONS type_not_found = 1
-    ).
+    READ TABLE elements_buffer WITH KEY element = element ASSIGNING FIELD-SYMBOL(<element_buffer>).
+    IF sy-subrc = 0.
+      DATA(descr) = <element_buffer>-descr.
+    ELSE.
 
-    IF base_descr IS NOT BOUND.
-      RETURN.
+      cl_abap_datadescr=>describe_by_name(
+        EXPORTING  p_name         = element
+        RECEIVING  p_descr_ref    = DATA(base_descr)
+        EXCEPTIONS type_not_found = 1
+      ).
+
+      IF base_descr IS NOT BOUND.
+        zcx_adv_exception=>raise( |Type not found for '{ element }' | ).
+      ENDIF.
+
+      TRY.
+          descr = CAST cl_abap_elemdescr( base_descr ) .
+        CATCH cx_sy_move_cast_error.
+          zcx_adv_exception=>raise( |'{ element }' is not an elementary data type.| ).
+      ENDTRY.
+
+      DATA(element_buffer) = VALUE ty_rtts_buffer(
+        element = element
+        descr   = descr
+      ).
+
+      INSERT element_buffer INTO TABLE elements_buffer.
+
     ENDIF.
-
-    DATA(descr) = CAST cl_abap_elemdescr( base_descr ).
 
     result-type = get_type_by_element( descr ).
 
@@ -455,5 +495,6 @@ CLASS zcl_adata_validator IMPLEMENTATION.
       ENDTRY.
       RETURN.
     ENDIF.
+
   ENDMETHOD.
 ENDCLASS.
