@@ -67,6 +67,7 @@ CLASS zcl_adata_validator DEFINITION
     CONSTANTS: c_type_base64 TYPE ty_spec_type VALUE 'BASE64'.
     CONSTANTS: c_type_html TYPE ty_spec_type VALUE 'HTML'.
     CONSTANTS: c_type_packed TYPE ty_spec_type VALUE 'PACKED'.
+    CONSTANTS: c_type_invalid TYPE ty_spec_type VALUE 'Invalid Type'.
 
 
     METHODS:
@@ -94,8 +95,7 @@ CLASS zcl_adata_validator DEFINITION
       "! @parameter element | reference data element
       validate_by_element IMPORTING !data         TYPE simple
                                     !element      TYPE rollname
-                          RETURNING VALUE(result) TYPE ty_result_single
-                          RAISING   zcx_adv_exception.
+                          RETURNING VALUE(result) TYPE ty_result_single.
   PROTECTED SECTION.
 
   PRIVATE SECTION.
@@ -136,7 +136,7 @@ CLASS zcl_adata_validator DEFINITION
     METHODS: set_result IMPORTING !row       TYPE int4
                                   !fname     TYPE name_komp
                                   !type_name TYPE ty_spec_type OPTIONAL
-                                  !msg_text  TYPE string.
+                                  !msg_text  TYPE string OPTIONAL.
 
     METHODS: get_type_by_element IMPORTING !descr      TYPE REF TO cl_abap_elemdescr
                                  RETURNING VALUE(type) TYPE ty_spec_type.
@@ -296,6 +296,12 @@ CLASS zcl_adata_validator IMPLEMENTATION.
                     type_name = <rule>-user_type
                 ).
               ENDIF.
+            ELSEIF <rule>-user_type IS NOT INITIAL AND sy-subrc <> 0.
+              set_result(
+                 row       = data_row
+                 fname     = <rule>-fname
+                 type_name = c_type_invalid
+             ).
             ENDIF.
 
             IF <rule>-ref_element IS NOT INITIAL.
@@ -458,13 +464,15 @@ CLASS zcl_adata_validator IMPLEMENTATION.
       ).
 
       IF base_descr IS NOT BOUND.
-        zcx_adv_exception=>raise( |Type not found for '{ element }' | ).
+        result-type = c_type_invalid.
+        RETURN.
       ENDIF.
 
       TRY.
           descr = CAST cl_abap_elemdescr( base_descr ) .
         CATCH cx_sy_move_cast_error.
-          zcx_adv_exception=>raise( |'{ element }' is not an elementary data type.| ).
+          result-type = c_type_invalid.
+          RETURN.
       ENDTRY.
 
       DATA(element_buffer) = VALUE ty_rtts_buffer(
@@ -479,8 +487,13 @@ CLASS zcl_adata_validator IMPLEMENTATION.
     result-type = get_type_by_element( descr ).
 
     IF result-type IS NOT INITIAL.
-      result-valid = call_check_method( data = data class = VALUE #( check_config[ type = result-type ]-class OPTIONAL ) ).
-      RETURN.
+      TRY.
+          result-valid = call_check_method( data = data class = VALUE #( check_config[ type = result-type ]-class OPTIONAL ) ).
+          RETURN.
+        CATCH zcx_adv_exception INTO DATA(ex).
+          result-type = c_type_invalid.
+          RETURN.
+      ENDTRY.
     ENDIF.
 
     IF descr->type_kind = cl_abap_elemdescr=>typekind_packed.
