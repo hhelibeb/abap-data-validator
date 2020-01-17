@@ -485,6 +485,7 @@ CLASS zcl_adata_validator IMPLEMENTATION.
 
     IF descr->type_kind = cl_abap_elemdescr=>typekind_packed.
       DATA: dref TYPE REF TO data.
+      result-type = c_type_packed.
       CREATE DATA dref TYPE (element).
       ASSIGN dref->* TO FIELD-SYMBOL(<packed>).
       TRY.
