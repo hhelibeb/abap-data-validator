@@ -3,11 +3,16 @@ A data validation tool.
 
 ABAP Data Validator is a tool to simplify data validation process for SAP ABAP development.
 
-Features and Goals:
-* General input/output.
+Goals:
+* General validation interface, which allows complete validation work by one method call.
+* Centralize some validation logic, avoid duplicate & inconsistent, decrease maintenance cost.
+* Avoid potential dump.
+
+To achieve the goal, ABAP Data Validator has some features
+* Built-in validation logic.
 * Customizable validation rules.
 * Extendable validation program.
-* Centralize some validation logic.
+* Internal exception handling.
 
 ## Type list
 ABAP Data Validator supports validations for types below (updating),
@@ -24,23 +29,42 @@ ABAP Data Validator supports validations for types below (updating),
 - [x] GUID.
 - [x] BASE64.
 - [x] HTML (experimental).
+And validation of mandatory, validate by reference data elements are also supported.
 
 ## Usage
 
 ### Single field validation 
-Every check class implements the interface `zif_adv_check`. You can use static method `zif_adv_check~is_valid` to validate data just like a built-in function. Example:
-```abap
-IF zcl_adv_email_check=>zif_adv_check~is_valid( 'example@github.com' ).
- "do something
-ENDIF.
-```
-Or with aliases:
+For every type, ABAP Data Validator has a special check class. You can use static method `is_valid` of check class to validate data just like a built-in function. Example:
 ```abap
 IF zcl_adv_email_check=>is_valid( 'example@github.com' ).
  "do something
 ENDIF.
 ```
+Every check class implements the interface `zif_adv_check`, which contains method`is_valid`.
+![check classere](https://raw.githubusercontent.com/hhelibeb/abap-data-validator/master/doc/img/uml1.png)
+
+The naming convention of check classes is ZCL_ADV_typename_CHECK.
+
 All classes have unit tests.
+
+### Validation with reference data element
+For easy to use, `is_valid` is a quite simple method, that means it can't provide function on validation of quantity and amount type. In order to solve this issue, ABAP Data Validator provide another way to validate data.
+```abap
+DATA(result) = NEW zcl_adata_validator( )->->validate_by_element(
+   data    = '11.0'
+   element = 'MENGE_D' "quantity data element name
+).
+```
+Now data elements with below type are supported,
+- [x] Date.
+- [x] Time.
+- [x] Timestamp.
+- [x] INT4.
+- [x] GUID.
+- [x] HEX.
+- [x] Packed(including most of the quantity type and amount type).
+
+To keep the check method simple, there is also no exception definition of the method `validate_by_element`. The method handles exceptions internally, and return a result with the result-valid = abap_false, result-type = 'Invalid Type' (fixed value).
 
 ### Internal table validation
 Class `zcl_adata_validator` provides a general validation method `validate`. 
@@ -70,7 +94,7 @@ rules = VALUE #(
 ### Extend validation for special type
 There are two ways to extend the validation:
 * Pass regular expression by RULES-REGEX.
-* Create a new class which implements `zif_adv_check`, and add the type name & class name in `zcl_adata_validator->constructor`.
+* Create a new class which implements `zif_adv_check`, and pass the type name & class name to `zcl_adata_validator->constructor`.
 
 Regex example. If you want to check whether the input email is a gmail address, you can assign `gmail\.com$` to `rule-regex`:
 
@@ -80,8 +104,8 @@ DATA: rules TYPE zcl_adata_validator=>ty_rules_t.
 DATA: cases TYPE ty_case_t.
 
 cases = VALUE #(
-    ( field3 = 'ZZZ2@gmail.com') "correct
-    ( field3 = 'ZZZ2@gmail.com.cn') "incorrect
+    ( field3 = 'ZZZ2@gmail.com') "correct, it is a gmail address
+    ( field3 = 'ZZZ2@outlook.com') "incorrect, it is not a gmail address
 ).
 
 rules = VALUE #(
@@ -90,13 +114,18 @@ rules = VALUE #(
 ```
 Or add a new class, and add it to check config on demand: 
 ```abap
-METHOD constructor.
+DATA: check_class_config TYPE zcl_adata_validator=>ty_check_config_t.
 
-  check_config = VALUE #(
-    ( type = zcl_adata_validatorn=>c_type_new  class = 'ZCL_ADV_NEWTYPE_CHECK'  message = 'Invalid value for field &.  ')
-  ).
+check_class_config = VALUE #( ( type = zcl_adata_validator=>c_type_new  class = 'ZCL_NEW_VALIDATOR' ) ).
 
-ENDMETHOD.
+TRY.
+     DATA(result) = NEW zcl_adata_validator( check_class_conifg = check_class_config )->validate(
+         rules   = rules
+         data    = cases
+     ).
+CATCH zcx_adv_exception INTO DATA(ex).
+    DATA(msg) = ex->get_text( ).
+ENDTRY.
  ```
 ### Configuration 
 The configuration is hard coded in `zcl_adata_validator`'s constructor. You can also pass you own configuration into the constructor. It allows you to change the function without modifying the existed program.
@@ -116,6 +145,7 @@ CATCH zcx_adv_exception INTO DATA(ex).
 ENDTRY.
 
 ```
+Note: Custom config will cover default config.
 
 ## Requirment
 ABAP Version: 740 sp08 or higher
