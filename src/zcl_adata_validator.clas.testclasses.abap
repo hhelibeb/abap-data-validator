@@ -12,6 +12,7 @@ CLASS ltc_validation_check DEFINITION FINAL FOR TESTING DURATION SHORT RISK LEVE
              field6 TYPE string,
              field7 TYPE string,
              field8 TYPE string,
+             field9 TYPE string,
            END OF ty_case.
     TYPES: ty_case_t TYPE STANDARD TABLE OF ty_case.
 
@@ -98,7 +99,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
     ).
 
     rules = VALUE #(
-      ( fname = 'FIELD1' required = abap_true                                user_type = zcl_adata_validator=>c_type_date )
+      ( fname = 'FIELD1' required = abap_true                                user_type = zcl_adata_validator=>c_type_date regex = '^[20100101]$' )
       ( fname = 'FIELD2'                       initial_or_empty = abap_true  user_type = zcl_adata_validator=>c_type_date )
       ( fname = 'FIELD6' required = abap_true                                user_type = zcl_adata_validator=>c_type_email )
     ).
@@ -266,15 +267,14 @@ CLASS ltc_validation_check IMPLEMENTATION.
 
     rules = VALUE #(
       ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_date      )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_email     )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_time      )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_int4      )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_regex     )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_timestamp )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_url       )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_hex       )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_json      )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_imei      )
+      ( fname = 'FIELD2' user_type = zcl_adata_validator=>c_type_email     )
+      ( fname = 'FIELD3' user_type = zcl_adata_validator=>c_type_time      )
+      ( fname = 'FIELD4' user_type = zcl_adata_validator=>c_type_int4      )
+      ( fname = 'FIELD5' user_type = zcl_adata_validator=>c_type_regex     )
+      ( fname = 'FIELD6' user_type = zcl_adata_validator=>c_type_timestamp )
+      ( fname = 'FIELD7' user_type = zcl_adata_validator=>c_type_url       )
+      ( fname = 'FIELD8' user_type = zcl_adata_validator=>c_type_hex       )
+      ( fname = 'FIELD9' user_type = zcl_adata_validator=>c_type_imei      )
     ).
 
     cases = VALUE #( ( field1 = 'A$$' ) ).
@@ -299,15 +299,14 @@ CLASS ltc_validation_check IMPLEMENTATION.
 
     rules = VALUE #(
       ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_date      )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_email     )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_time      )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_int4      )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_regex     )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_timestamp )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_url       )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_hex       )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_json      )
-      ( fname = 'FIELD1' user_type = zcl_adata_validator=>c_type_imei      )
+      ( fname = 'FIELD2' user_type = zcl_adata_validator=>c_type_email     )
+      ( fname = 'FIELD3' user_type = zcl_adata_validator=>c_type_time      )
+      ( fname = 'FIELD4' user_type = zcl_adata_validator=>c_type_int4      )
+      ( fname = 'FIELD5' user_type = zcl_adata_validator=>c_type_regex     )
+      ( fname = 'FIELD6' user_type = zcl_adata_validator=>c_type_timestamp )
+      ( fname = 'FIELD7' user_type = zcl_adata_validator=>c_type_url       )
+      ( fname = 'FIELD8' user_type = zcl_adata_validator=>c_type_hex       )
+      ( fname = 'FIELD9' user_type = zcl_adata_validator=>c_type_imei      )
     ).
 
     cases = VALUE #(
@@ -420,10 +419,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
         ( field1 = '20201121'  )
     ).
 
-    rules = VALUE #(
-      ( fname = 'FIELD1' required = abap_true ref_element = 'DATUM' )
-    ).
-
+    rules = VALUE #( ( fname = 'FIELD1' required = abap_true ref_element = 'DATUM' ) ).
 
     DATA(validator) = NEW zcl_adata_validator( ).
     TRY.
@@ -503,9 +499,7 @@ CLASS ltc_validation_check IMPLEMENTATION.
         ( field1 = '202011321' )
     ).
 
-    rules = VALUE #(
-      ( fname = 'FIELD1' required = abap_true user_type = 'some type' )
-    ).
+    rules = VALUE #( ( fname = 'FIELD1' required = abap_true user_type = 'some type' ) ).
 
 
     DATA(validator) = NEW zcl_adata_validator( ).

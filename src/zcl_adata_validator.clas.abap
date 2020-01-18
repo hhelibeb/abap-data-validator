@@ -17,7 +17,7 @@ CLASS zcl_adata_validator DEFINITION
              ref_element      TYPE rollname,    "check by the type of the reference data element
            END OF ty_rule.
 
-    TYPES: ty_rules_t TYPE HASHED TABLE OF ty_rule WITH UNIQUE KEY fname user_type.
+    TYPES: ty_rules_t TYPE HASHED TABLE OF ty_rule WITH UNIQUE KEY fname.
 
     TYPES: BEGIN OF ty_msg,
              text TYPE string,
@@ -75,8 +75,8 @@ CLASS zcl_adata_validator DEFINITION
       "! initialize some configurations, pass your own configurations on demand
       "! @parameter check_class_conifg | check classes & type names
       "! @parameter default_message    | default message for some base checks
-      constructor IMPORTING check_class_conifg TYPE ty_check_config_t OPTIONAL
-                            default_message    TYPE ty_default_msg OPTIONAL.
+      constructor IMPORTING !check_class_conifg TYPE ty_check_config_t OPTIONAL
+                            !default_message    TYPE ty_default_msg OPTIONAL.
 
     METHODS: "! <p class="shorttext synchronized" lang="en"></p>
       "! <p>Validation method for internal table</p>
