@@ -24,7 +24,7 @@ CLASS zcl_adv_regex_check IMPLEMENTATION.
 
     TRY.
         regex = NEW #( pattern  = string_regex ).
-      CATCH cx_sy_invalid_regex.
+      CATCH cx_sy_invalid_regex INTO DATA(ex).
         RETURN.
     ENDTRY.
 

@@ -17,7 +17,7 @@ CLASS zcl_adv_html_check DEFINITION
              hilite_length TYPE i,
            END OF ty_messages.
     TYPES: ty_messages_t TYPE STANDARD TABLE OF ty_messages WITH EMPTY KEY.
-    CLASS-DATA: messages TYPE ty_messages_t.
+    CLASS-DATA: messages TYPE ty_messages_t READ-ONLY.
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
