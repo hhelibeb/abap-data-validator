@@ -505,7 +505,7 @@ CLASS zcl_adata_validator IMPLEMENTATION.
           <packed> = data.
           result-valid = abap_true.
         CATCH: cx_sy_conversion_overflow
-               cx_sy_conversion_no_number.
+               cx_sy_conversion_no_number..
       ENDTRY.
       RETURN.
     ENDIF.
