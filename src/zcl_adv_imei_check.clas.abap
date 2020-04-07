@@ -27,7 +27,7 @@ CLASS zcl_adv_imei_check IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-
+*https://en.wikipedia.org/wiki/Luhn_algorithm
     DO strlen( imei_string ) TIMES.
       DATA(digit)  = CONV int4( imei_string+imei_index(1) ).
       IF imei_index MOD 2 = 1.
