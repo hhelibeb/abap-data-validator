@@ -12,12 +12,10 @@ ENDCLASS.
 
 
 
-CLASS zcl_adv_guid_check IMPLEMENTATION.
+CLASS ZCL_ADV_GUID_CHECK IMPLEMENTATION.
 
 
   METHOD zif_adv_check~is_valid.
-
-    valid = abap_false.
 
     DATA(string_email) = CONV string( data ).
 

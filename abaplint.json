@@ -100,7 +100,7 @@
         "ambiguous_statement": true,
         "begin_end_names": true,
         "check_transformation_exists": true,
-        "check_syntax": true,
+        "check_syntax": false,
         "form_tables_obsolete": true,
         "tabl_enhancement_category": true,
         "implement_methods": true,

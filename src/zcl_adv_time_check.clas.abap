@@ -12,10 +12,10 @@ ENDCLASS.
 
 
 
-CLASS zcl_adv_time_check IMPLEMENTATION.
-  METHOD zif_adv_check~is_valid.
+CLASS ZCL_ADV_TIME_CHECK IMPLEMENTATION.
 
-    valid = abap_false.
+
+  METHOD zif_adv_check~is_valid.
 
     DATA(string_time) = CONV string( data ).
 
@@ -38,5 +38,4 @@ CLASS zcl_adv_time_check IMPLEMENTATION.
     valid = abap_true.
 
   ENDMETHOD.
-
 ENDCLASS.

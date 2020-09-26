@@ -12,13 +12,12 @@ ENDCLASS.
 
 
 
-CLASS zcl_adv_regex_check IMPLEMENTATION.
+CLASS ZCL_ADV_REGEX_CHECK IMPLEMENTATION.
+
 
   METHOD zif_adv_check~is_valid.
 
     DATA: regex TYPE REF TO cl_abap_regex.
-
-    valid = abap_false.
 
     DATA(string_regex) = CONV string( data ).
 
@@ -31,5 +30,4 @@ CLASS zcl_adv_regex_check IMPLEMENTATION.
     valid = abap_true.
 
   ENDMETHOD.
-
 ENDCLASS.

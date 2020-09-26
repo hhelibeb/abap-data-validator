@@ -12,13 +12,12 @@ ENDCLASS.
 
 
 
-CLASS zcl_adv_hex_check IMPLEMENTATION.
+CLASS ZCL_ADV_HEX_CHECK IMPLEMENTATION.
+
 
   METHOD zif_adv_check~is_valid.
 
     DATA: xstring_hex TYPE xstring.
-
-    valid = abap_false.
 
     DATA(string_hex) = CONV string( data ).
 
@@ -35,5 +34,4 @@ CLASS zcl_adv_hex_check IMPLEMENTATION.
     valid = abap_true.
 
   ENDMETHOD.
-
 ENDCLASS.

@@ -17,11 +17,9 @@ CLASS ZCL_ADV_TIMESTAMP_CHECK IMPLEMENTATION.
 
   METHOD zif_adv_check~is_valid.
 
-    valid = abap_false.
-
     DATA(string_ts) = CONV string( data ).
 
-    IF not contains( val = string_ts regex = '\d{14} ?$' ).
+    IF NOT contains( val = string_ts regex = '\d{14} ?$' ).
       RETURN.
     ENDIF.
 

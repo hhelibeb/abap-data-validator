@@ -24,7 +24,7 @@ ENDCLASS.
 
 
 
-CLASS zcl_adv_html_check IMPLEMENTATION.
+CLASS ZCL_ADV_HTML_CHECK IMPLEMENTATION.
 
 
   METHOD zif_adv_check~is_valid.
@@ -43,8 +43,6 @@ CLASS zcl_adv_html_check IMPLEMENTATION.
           subrc         TYPE i.
 
     DATA: original_messages TYPE t_json1.
-
-    valid = abap_false.
 
     DATA(string_html) = CONV string( data ).
     IF string_html IS INITIAL.
