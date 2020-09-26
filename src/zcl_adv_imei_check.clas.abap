@@ -12,14 +12,13 @@ ENDCLASS.
 
 
 
-CLASS zcl_adv_imei_check IMPLEMENTATION.
+CLASS ZCL_ADV_IMEI_CHECK IMPLEMENTATION.
+
 
   METHOD zif_adv_check~is_valid.
 
     DATA: imei_index TYPE i,
           sum        TYPE i.
-
-    valid = abap_false.
 
     DATA(imei_string) = CONV string( data ).
 
@@ -45,5 +44,4 @@ CLASS zcl_adv_imei_check IMPLEMENTATION.
     ENDIF.
 
   ENDMETHOD.
-
 ENDCLASS.

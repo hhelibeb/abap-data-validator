@@ -12,11 +12,10 @@ ENDCLASS.
 
 
 
-CLASS zcl_adv_json_check IMPLEMENTATION.
+CLASS ZCL_ADV_JSON_CHECK IMPLEMENTATION.
+
 
   METHOD zif_adv_check~is_valid.
-
-    valid = abap_false.
 
     DATA(string_json) = CONV string( data ).
     IF string_json IS INITIAL.
@@ -31,5 +30,4 @@ CLASS zcl_adv_json_check IMPLEMENTATION.
     valid = abap_true.
 
   ENDMETHOD.
-
 ENDCLASS.

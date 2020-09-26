@@ -17,8 +17,6 @@ CLASS ZCL_ADV_BASE64_CHECK IMPLEMENTATION.
 
   METHOD zif_adv_check~is_valid.
 
-    valid = abap_false.
-
     DATA(string_base64) = CONV string( data ).
     IF string_base64 IS INITIAL.
       valid = abap_true.
