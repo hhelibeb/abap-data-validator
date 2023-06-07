@@ -5,16 +5,17 @@ CLASS zcl_adata_validator DEFINITION
 
   PUBLIC SECTION.
 
-    TYPES: ty_spec_type TYPE string.
+    TYPES: ty_spec_type TYPE string,
+           ty_char30 TYPE c LENGTH 30.
 
     TYPES: BEGIN OF ty_rule,
-             fname            TYPE name_komp,   "field name
+             fname            TYPE ty_char30,   "field name
              required         TYPE abap_bool,
              initial_or_empty TYPE abap_bool,
              user_type        TYPE ty_spec_type,
              regex            TYPE string,      "custom regular expression rule
              regex_msg        TYPE string,      "custom regular expression error message
-             ref_element      TYPE rollname,    "check by the type of the reference data element
+             ref_element      TYPE ty_char30,    "check by the type of the reference data element
            END OF ty_rule.
 
     TYPES: ty_rules_t TYPE HASHED TABLE OF ty_rule WITH UNIQUE KEY fname.
@@ -26,7 +27,7 @@ CLASS zcl_adata_validator DEFINITION
 
     TYPES: BEGIN OF ty_check_config,
              type    TYPE ty_spec_type,
-             class   TYPE seoclsname,
+             class   TYPE ty_char30,
              message TYPE string,
            END OF ty_check_config.
     TYPES: ty_check_config_t TYPE HASHED TABLE OF ty_check_config WITH UNIQUE KEY type.
@@ -40,7 +41,7 @@ CLASS zcl_adata_validator DEFINITION
 
     TYPES: BEGIN OF ty_result,
              row     TYPE int4,
-             fname   TYPE name_komp,
+             fname   TYPE ty_char30,
              type    TYPE ty_spec_type,
              error   TYPE abap_bool,
              message TYPE ty_msg_t,
@@ -94,14 +95,14 @@ CLASS zcl_adata_validator DEFINITION
       "! @parameter data    | data to be validated
       "! @parameter element | reference data element
       validate_by_element IMPORTING !data         TYPE simple
-                                    !element      TYPE rollname
+                                    !element      TYPE ty_char30
                           RETURNING VALUE(result) TYPE ty_result_single.
   PROTECTED SECTION.
 
   PRIVATE SECTION.
 
     TYPES: BEGIN OF ty_rtts_buffer,
-             element TYPE rollname,
+             element TYPE ty_char30,
              descr   TYPE REF TO cl_abap_elemdescr,
            END OF ty_rtts_buffer.
     TYPES: ty_rtts_buffer_t TYPE HASHED TABLE OF ty_rtts_buffer WITH UNIQUE KEY element.
@@ -114,7 +115,7 @@ CLASS zcl_adata_validator DEFINITION
 
     DATA: results_temp TYPE ty_result_t.
 
-    DATA: classes_list TYPE sic_t_class_descr.
+    DATA: classes_list TYPE sxco_t_ao_object_names.
 
     METHODS: basic_check IMPORTING !rules TYPE ty_rules_t
                                    !data  TYPE STANDARD TABLE
@@ -129,12 +130,12 @@ CLASS zcl_adata_validator DEFINITION
                            RAISING   zcx_adv_exception.
 
     METHODS: call_check_method IMPORTING !data        TYPE simple
-                                         !class       TYPE seoclsname
+                                         !class       TYPE ty_char30
                                RETURNING VALUE(valid) TYPE abap_bool
                                RAISING   zcx_adv_exception.
 
     METHODS: set_result IMPORTING !row       TYPE int4
-                                  !fname     TYPE name_komp
+                                  !fname     TYPE ty_char30
                                   !type_name TYPE ty_spec_type OPTIONAL
                                   !msg_text  TYPE string OPTIONAL.
 
@@ -145,7 +146,7 @@ ENDCLASS.
 
 
 
-CLASS zcl_adata_validator IMPLEMENTATION.
+CLASS ZCL_ADATA_VALIDATOR IMPLEMENTATION.
 
 
   METHOD basic_check.
@@ -201,7 +202,7 @@ CLASS zcl_adata_validator IMPLEMENTATION.
     DATA: ptab TYPE abap_parmbind_tab,
           etab TYPE abap_excpbind_tab.
 
-    IF line_exists( classes_list[ clsname = class ] ).
+    IF line_exists( classes_list[ table_line = class ] ).
 
       DATA(method_name)  = |{ zif_adv_check=>c_interface_name }~{ zif_adv_check=>c_method_name }|.
 
@@ -265,10 +266,7 @@ CLASS zcl_adata_validator IMPLEMENTATION.
       default_msg-class_error      = |Class &1 is invalid, check your configuration and code. |.
     ENDIF.
 
-    TRY.
-        classes_list = cl_sic_configuration=>get_classes_for_interface( zif_adv_check=>c_interface_name ).
-      CATCH cx_class_not_existent.
-    ENDTRY.
+    classes_list = xco_cp_abap=>interface( 'ZIF_ADV_CHECK' )->implementations->all->get_names( ).
 
   ENDMETHOD.
 

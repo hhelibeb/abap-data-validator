@@ -17,23 +17,22 @@ CLASS ZCL_ADV_TIME_CHECK IMPLEMENTATION.
 
   METHOD zif_adv_check~is_valid.
 
-    DATA(string_time) = CONV string( data ).
+    DATA: string_time TYPE c LENGTH 6.
+    string_time = CONV #( data ).
 
-    IF NOT contains( val = string_time regex = '^\d{6}$' ).
+    IF NOT contains( val   = string_time
+                     regex = '^\d{6}$' ).
       RETURN.
     ENDIF.
 
-    DATA(time) = CONV uzeit( string_time ).
+    TRY.
+        DATA(time) = xco_cp_time=>time( iv_hour   = CONV #( string_time(2) )
+                                        iv_minute = CONV #( string_time+2(2) )
+                                        iv_second = CONV #( string_time+4(2) ) ).
 
-    CALL FUNCTION 'TIME_CHECK_PLAUSIBILITY'
-      EXPORTING
-        time                      = time
-      EXCEPTIONS
-        plausibility_check_failed = 1
-        OTHERS                    = 2.
-    IF sy-subrc <> 0.
-      RETURN.
-    ENDIF.
+      CATCH cx_no_check INTO DATA(exception).
+        RETURN.
+    ENDTRY.
 
     valid = abap_true.
 
