@@ -16,24 +16,22 @@ CLASS ZCL_ADV_DATE_CHECK IMPLEMENTATION.
 
 
   METHOD zif_adv_check~is_valid.
+    DATA: string_date TYPE c LENGTH 8.
 
-    DATA(string_date) = CONV string( data ).
+    string_date = CONV #( data ).
 
-    IF NOT contains( val = string_date regex = '^\d{8}$' ).
+    IF NOT contains( val   = string_date
+                     regex = '^\d{8}$' ).
       RETURN.
     ENDIF.
 
-    DATA(date) = CONV datum( string_date ).
-
-    CALL FUNCTION 'DATE_CHECK_PLAUSIBILITY'
-      EXPORTING
-        date                      = date
-      EXCEPTIONS
-        plausibility_check_failed = 1
-        OTHERS                    = 2.
-    IF sy-subrc <> 0.
-      RETURN.
-    ENDIF.
+    TRY.
+        DATA(xco_date) = xco_cp_time=>date( iv_year  = CONV #( string_date(4) )
+                                            iv_month = CONV #( string_date+2(2) )
+                                            iv_day   = CONV #( string_date+4(2) ) ).
+      CATCH cx_no_check INTO DATA(exception).
+        RETURN.
+    ENDTRY.
 
     valid = abap_true.
 

@@ -12,7 +12,7 @@ CLASS zcx_adv_exception DEFINITION
     DATA msgv2 TYPE symsgv READ-ONLY.
     DATA msgv3 TYPE symsgv READ-ONLY.
     DATA msgv4 TYPE symsgv READ-ONLY.
-    DATA mt_callstack TYPE abap_callstack READ-ONLY.
+    DATA mr_callstack TYPE REF TO if_xco_cp_call_stack READ-ONLY.
 
     "! Raise exception with text
     "! @parameter iv_text | Text
@@ -75,7 +75,7 @@ ENDCLASS.
 
 
 
-CLASS zcx_adv_exception IMPLEMENTATION.
+CLASS ZCX_ADV_EXCEPTION IMPLEMENTATION.
 
 
   METHOD constructor ##ADT_SUPPRESS_GENERATION.
@@ -96,6 +96,7 @@ CLASS zcx_adv_exception IMPLEMENTATION.
     save_callstack( ).
 
   ENDMETHOD.
+
 
   METHOD raise.
     DATA: lv_msgv1    TYPE symsgv,
@@ -125,7 +126,7 @@ CLASS zcx_adv_exception IMPLEMENTATION.
     ls_msg = lv_text.
 
     " &1&2&3&4&5&6&7&8
-    MESSAGE e001(00) WITH ls_msg-msgv1 ls_msg-msgv2 ls_msg-msgv3 ls_msg-msgv4
+    MESSAGE e001(zcm_data_validator) WITH ls_msg-msgv1 ls_msg-msgv2 ls_msg-msgv3 ls_msg-msgv4
                      INTO lv_dummy.
 
     ls_t100_key-msgid = sy-msgid.
@@ -176,44 +177,30 @@ CLASS zcx_adv_exception IMPLEMENTATION.
 
   METHOD save_callstack.
 
-    FIELD-SYMBOLS: <ls_callstack> TYPE abap_callstack_line.
-
-    CALL FUNCTION 'SYSTEM_CALLSTACK'
-      IMPORTING
-        callstack = mt_callstack.
-
     " You should remember that the first lines are from zcx_ADV_exception
     " and are removed so that highest level in the callstack is the position where
     " the exception is raised.
-    "
-    " For the merged report it's hard to do that, because zcx_ADV_exception
-    " isn't visible in the callstack. Therefore we have to check the Events.
-    LOOP AT mt_callstack ASSIGNING <ls_callstack>.
 
-      IF <ls_callstack>-mainprogram CP |ZCX_ADV_EXCEPTION*| " full
-      OR <ls_callstack>-blockname = `SAVE_CALLSTACK` " merged
-      OR <ls_callstack>-blockname = `CONSTRUCTOR` " merged
-      OR <ls_callstack>-blockname CP `RAISE*`. "merged
-        DELETE TABLE mt_callstack FROM <ls_callstack>.
-      ELSE.
-        EXIT.
-      ENDIF.
+    "Remove the entries involving ZCX_ADV_EXCEPTION
+    mr_callstack = XCO_CP=>CURRENT->call_stack->full( ).
+    DATA(lo_line_pattern) = xco_cp_call_stack=>line_pattern->method( )->where_class_name_starts_with( 'ZCX_ADV_' ).
+    mr_callstack = mr_callstack->from->last_occurrence_of( lo_line_pattern  ).
+    mr_callstack = mr_callstack->from->position( 2 ).
 
-    ENDLOOP.
 
   ENDMETHOD.
 
 
   METHOD get_source_position.
 
-    FIELD-SYMBOLS: <ls_callstack> TYPE abap_callstack_line.
+    DATA(lr_callstack) = mr_callstack->to->position( 1 ).
+    DATA(lr_format) = xco_cp_call_stack=>format->adt( )->with_line_number_flavor( xco_cp_call_stack=>line_number_flavor->source ).
+    DATA(lt_callstack_texts) = lr_callstack->as_text( lr_format )->get_lines( )->get( 1 )->split( | | )->value.
 
-    READ TABLE mt_callstack ASSIGNING <ls_callstack>
-                            INDEX 1.
-    IF sy-subrc = 0.
-      program_name = <ls_callstack>-mainprogram.
-      include_name = <ls_callstack>-include.
-      source_line  = <ls_callstack>-line.
+    IF lines( lt_callstack_texts ) = 9.
+        program_name = lt_callstack_texts[ 1 ].
+        include_name = lt_callstack_texts[ 5 ].
+        source_line  = lt_callstack_texts[ 9 ].
     ELSE.
       super->get_source_position(
         IMPORTING
@@ -223,5 +210,4 @@ CLASS zcx_adv_exception IMPLEMENTATION.
     ENDIF.
 
   ENDMETHOD.
-
 ENDCLASS.
