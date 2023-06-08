@@ -150,7 +150,7 @@ Note: Custom config will cover default config.
 ## Requirment
 ABAP Version: 740 SP08 or higher
 
-For ABAP Cloud, there is another release which was contributed by ArneVanH. Please find it on the [release page](https://github.com/hhelibeb/abap-data-validator/releases). Refer to issue https://github.com/hhelibeb/abap-data-validator/issues/21 for more details
+For ABAP Cloud, there is another release which was contributed by ArneVanH. Please find it on the [Releases page](https://github.com/hhelibeb/abap-data-validator/releases). Refer to issue https://github.com/hhelibeb/abap-data-validator/issues/21 for more details
 
 ## Exception
 The exception class `zcx_adv_exception` is copied from `zcx_abapgit_exception` for it is easy to use:)
